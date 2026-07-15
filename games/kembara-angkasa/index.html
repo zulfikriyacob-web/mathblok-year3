@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kembara Angkasa: Matematik & Sains</title>
+<link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --space-navy:#151B33;
+    --deep-indigo:#212B54;
+    --solar-gold:#FFC93C;
+    --coral-blaze:#FF6B6B;
+    --nebula-teal:#4ECDC4;
+    --cloud-white:#F5F7FF;
+    --font-display:'Baloo 2', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, sans-serif;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{height:100%;}
+
+  body{
+    font-family:var(--font-body);
+    color:var(--cloud-white);
+    background:
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,.9), transparent),
+      radial-gradient(1.5px 1.5px at 70% 15%, rgba(255,255,255,.7), transparent),
+      radial-gradient(2px 2px at 45% 55%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1px 1px at 85% 65%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.5px 1.5px at 10% 80%, rgba(255,255,255,.7), transparent),
+      radial-gradient(2px 2px at 60% 85%, rgba(255,255,255,.6), transparent),
+      radial-gradient(1.5px 1.5px at 90% 40%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1px 1px at 30% 95%, rgba(255,255,255,.5), transparent),
+      linear-gradient(180deg, var(--space-navy), #0B0E1F 70%);
+    background-size: cover, cover, cover, cover, cover, cover, cover, cover, cover;
+    background-attachment: fixed;
+    min-height:100%;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  @keyframes twinkle{
+    0%,100%{opacity:.4;}
+    50%{opacity:1;}
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background: inherit;
+    opacity:.6;
+    animation: twinkle 4s ease-in-out infinite;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  button{font-family:inherit; border:none; cursor:pointer;}
+  button:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--nebula-teal);
+    outline-offset:3px;
+  }
+
+  #app{position:relative; z-index:1; max-width:520px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column;}
+
+  .screen{display:none; flex:1; flex-direction:column; padding:24px 20px 40px; animation:fadeIn .4s ease;}
+  .screen.active{display:flex;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; position:relative; z-index:2;
+  }
+  .stars-pill{
+    background:rgba(255,201,60,.14);
+    border:1.5px solid rgba(255,201,60,.4);
+    color:var(--solar-gold);
+    font-family:var(--font-display);
+    font-weight:700;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:15px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .icon-btn{
+    background:rgba(255,255,255,.08);
+    color:var(--cloud-white);
+    width:38px; height:38px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+  }
+  .icon-btn:active{transform:scale(.92);}
+
+  /* ---------- Start screen ---------- */
+  #start-screen{align-items:center; justify-content:center; text-align:center; gap:22px;}
+  .hero-rocket{
+    font-size:64px;
+    animation: floaty 3s ease-in-out infinite;
+  }
+  @keyframes floaty{0%,100%{transform:translateY(0) rotate(-4deg);} 50%{transform:translateY(-14px) rotate(4deg);}}
+  .title{
+    font-family:var(--font-display);
+    font-size:34px;
+    font-weight:800;
+    line-height:1.15;
+    background:linear-gradient(90deg, var(--solar-gold), var(--coral-blaze));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .subtitle{font-size:16px; color:#C7CCE8; max-width:340px; line-height:1.5; font-weight:600;}
+  .primary-btn{
+    font-family:var(--font-display);
+    font-size:19px; font-weight:700;
+    color:#1A1330;
+    background:linear-gradient(180deg, var(--solar-gold), #F5A623);
+    padding:16px 38px;
+    border-radius:18px;
+    box-shadow:0 6px 0 #B9780F, 0 10px 24px rgba(0,0,0,.35);
+    transition:transform .12s ease;
+  }
+  .primary-btn:active{transform:translateY(4px); box-shadow:0 2px 0 #B9780F;}
+  .start-note{font-size:13px; color:#8E96C0; font-weight:700;}
+
+  /* ---------- Map screen ---------- */
+  .map-heading{text-align:center; margin-bottom:6px;}
+  .map-heading h2{font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--cloud-white);}
+  .map-heading p{font-size:13px; color:#9AA1C9; font-weight:600; margin-top:2px;}
+
+  .map-path{
+    position:relative;
+    display:flex; flex-direction:column-reverse;
+    align-items:center;
+    gap:46px;
+    padding:36px 10px 10px;
+    flex:1;
+  }
+  .map-path::before{
+    content:'';
+    position:absolute;
+    top:20px; bottom:20px; left:50%;
+    width:4px; transform:translateX(-50%);
+    background-image:linear-gradient(180deg, rgba(255,255,255,.28) 0 10px, transparent 10px 20px);
+    background-size:4px 20px;
+    z-index:0;
+  }
+  .planet-stop{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .planet-stop:nth-child(odd){align-self:flex-start; margin-left:10%;}
+  .planet-stop:nth-child(even){align-self:flex-end; margin-right:10%;}
+
+  .planet-btn{
+    width:84px; height:84px; border-radius:50%;
+    position:relative;
+    box-shadow:inset -8px -8px 16px rgba(0,0,0,.35), 0 8px 18px rgba(0,0,0,.4);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .15s ease;
+  }
+  .planet-btn:active{transform:scale(.94);}
+  .planet-btn.locked{filter:grayscale(1) brightness(.5); cursor:not-allowed;}
+  .planet-btn.active-stop{box-shadow:inset -8px -8px 16px rgba(0,0,0,.35), 0 0 0 4px var(--solar-gold), 0 8px 22px rgba(255,201,60,.5);}
+  .planet-btn.has-ring::after{
+    content:'';
+    position:absolute; left:50%; top:50%;
+    width:130px; height:34px;
+    border:5px solid rgba(255,232,180,.75);
+    border-radius:50%;
+    transform:translate(-50%,-50%) rotate(-18deg);
+    pointer-events:none;
+  }
+  .lock-badge{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:26px; color:rgba(255,255,255,.85);
+  }
+  .planet-label{font-family:var(--font-display); font-weight:700; font-size:15px;}
+  .planet-stars{font-size:12px; color:var(--solar-gold); font-weight:800; min-height:14px;}
+  .rocket-marker{
+    position:absolute; top:-38px; font-size:26px;
+    animation: floaty 2.4s ease-in-out infinite;
+  }
+
+  /* ---------- Question screen ---------- */
+  #question-screen{align-items:center; text-align:center;}
+  .q-progress{display:flex; gap:8px; margin:10px 0 24px;}
+  .q-dot{width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,.2);}
+  .q-dot.done{background:var(--solar-gold);}
+  .q-dot.current{background:var(--nebula-teal);}
+  .planet-tag{
+    font-family:var(--font-display); font-weight:700; font-size:14px;
+    color:var(--nebula-teal); text-transform:uppercase; letter-spacing:.06em;
+    margin-bottom:4px;
+  }
+  .question-text{
+    font-family:var(--font-display);
+    font-size:44px; font-weight:800;
+    background:rgba(255,255,255,.06);
+    border-radius:24px;
+    padding:26px 20px;
+    width:100%;
+    margin-bottom:26px;
+    border:1.5px solid rgba(255,255,255,.1);
+  }
+  .options-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%;
+  }
+  .option-btn{
+    font-family:var(--font-display);
+    font-size:26px; font-weight:700;
+    color:var(--cloud-white);
+    background:var(--deep-indigo);
+    border:2px solid rgba(255,255,255,.12);
+    border-radius:16px;
+    padding:20px 8px;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .option-btn:active{transform:scale(.95);}
+  .option-btn.correct{background:#1F7A4D; border-color:#3ADB80;}
+  .option-btn.wrong{background:#7A2323; border-color:var(--coral-blaze); animation:shake .35s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}}
+
+  .feedback-msg{
+    min-height:26px; font-weight:800; font-size:15px; margin-top:18px;
+  }
+  .feedback-msg.good{color:#4EDE8E;}
+  .feedback-msg.bad{color:#FF9B9B;}
+
+  /* ---------- Fact screen ---------- */
+  #fact-screen{align-items:center; text-align:center; justify-content:center; gap:18px; position:relative;}
+  .fact-planet-visual{width:120px; height:120px; border-radius:50%; box-shadow:inset -10px -10px 22px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4); position:relative;}
+  .fact-card{
+    background:rgba(255,255,255,.07);
+    border:1.5px solid rgba(255,255,255,.14);
+    border-radius:22px;
+    padding:22px;
+  }
+  .fact-eyebrow{font-family:var(--font-display); color:var(--solar-gold); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px;}
+  .fact-text{font-size:16px; line-height:1.55; font-weight:700; color:var(--cloud-white);}
+  .stars-earned{font-family:var(--font-display); font-size:20px; font-weight:800; color:var(--solar-gold);}
+
+  /* ---------- Complete screen ---------- */
+  #complete-screen{align-items:center; justify-content:center; text-align:center; gap:16px;}
+  .trophy{font-size:70px; animation:floaty 3s ease-in-out infinite;}
+
+  /* confetti */
+  .confetti-piece{
+    position:fixed; top:-10px; width:9px; height:14px; z-index:5; border-radius:2px;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{ to{ transform:translateY(110vh) rotate(360deg); opacity:.9; } }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important;}
+  }
+
+  @media (max-width:380px){
+    .question-text{font-size:34px;}
+    .title{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="topbar" id="topbar" style="display:none;">
+    <button class="icon-btn" id="home-btn" aria-label="Kembali ke peta">🗺️</button>
+    <div class="stars-pill"><span>⭐</span><span id="star-count">0</span></div>
+  </div>
+
+  <!-- START -->
+  <section class="screen active" id="start-screen">
+    <div class="hero-rocket">🚀</div>
+    <h1 class="title">Kembara Angkasa<br>Matematik &amp; Sains</h1>
+    <p class="subtitle">Selesaikan misi matematik di setiap planet untuk kumpul bintang dan buka fakta sains yang menarik!</p>
+    <button class="primary-btn" id="start-btn">Mula Kembara 🚀</button>
+    <p class="start-note">Sesuai untuk umur 6–8 tahun</p>
+  </section>
+
+  <!-- MAP -->
+  <section class="screen" id="map-screen">
+    <div class="map-heading">
+      <h2>Peta Angkasa</h2>
+      <p id="map-hint">Tekan planet bercahaya untuk mula misi</p>
+    </div>
+    <div class="map-path" id="map-path"></div>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="screen" id="question-screen">
+    <div class="planet-tag" id="q-planet-tag">Bumi</div>
+    <div class="q-progress" id="q-progress"></div>
+    <div class="question-text" id="question-text">?</div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-msg" id="feedback-msg" aria-live="polite"></div>
+  </section>
+
+  <!-- FACT -->
+  <section class="screen" id="fact-screen">
+    <div class="fact-planet-visual" id="fact-planet-visual"></div>
+    <div class="stars-earned" id="stars-earned">⭐⭐⭐</div>
+    <div class="fact-card">
+      <div class="fact-eyebrow" id="fact-eyebrow">Tahukah kamu?</div>
+      <div class="fact-text" id="fact-text"></div>
+    </div>
+    <button class="primary-btn" id="continue-btn">Teruskan ke Angkasa 🚀</button>
+  </section>
+
+  <!-- COMPLETE -->
+  <section class="screen" id="complete-screen">
+    <div class="trophy">🏆</div>
+    <h1 class="title">Kembara Selesai!</h1>
+    <p class="subtitle">Hebat! Kamu dah lawat semua planet dan kumpul <span id="final-stars" style="color:var(--solar-gold); font-weight:800;">0</span> bintang!</p>
+    <button class="primary-btn" id="restart-btn">Main Semula 🔄</button>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const planets = [
+    {
+      id:'bumi', name:'Bumi',
+      gradient:'radial-gradient(circle at 32% 28%, #8FF0C0, #2563EB 55%, #142A6B 100%)',
+      factTitle:'Tahukah kamu?',
+      fact:'Bumi ialah planet SATU-SATUNYA yang ada air cecair dan hidupan! Itulah sebabnya kita boleh tinggal di sini.',
+      ring:false
+    },
+    {
+      id:'bulan', name:'Bulan',
+      gradient:'radial-gradient(circle at 32% 28%, #F5F6FA, #A0A6BD 55%, #4B5163 100%)',
+      factTitle:'Tahukah kamu?',
+      fact:'Bulan tiada angin, jadi kesan tapak kaki angkasawan yang mendarat pada tahun 1969 masih ada di sana sampai sekarang!',
+      ring:false
+    },
+    {
+      id:'marikh', name:'Marikh',
+      gradient:'radial-gradient(circle at 32% 28%, #FCA98D, #D34B2C 55%, #6E2214 100%)',
+      factTitle:'Tahukah kamu?',
+      fact:'Marikh digelar "Planet Merah" sebab tanahnya mengandungi banyak karat besi. Ia juga ada gunung berapi paling tinggi dalam Sistem Suria!',
+      ring:false
+    },
+    {
+      id:'musytari', name:'Musytari',
+      gradient:'radial-gradient(circle at 32% 28%, #FDE9B0, #D9821B 55%, #7A4009 100%)',
+      factTitle:'Tahukah kamu?',
+      fact:'Musytari ialah planet PALING BESAR dalam Sistem Suria! Ia ada ribut raksasa dipanggil "Great Red Spot" yang lebih besar daripada Bumi.',
+      ring:false
+    },
+    {
+      id:'zuhal', name:'Zuhal',
+      gradient:'radial-gradient(circle at 32% 28%, #FCEBB6, #C8901E 55%, #6B4308 100%)',
+      factTitle:'Tahukah kamu?',
+      fact:'Zuhal terkenal dengan cincin cantiknya yang dibuat daripada ketulan ais dan batu. Ia planet kedua terbesar selepas Musytari!',
+      ring:true
+    }
+  ];
+
+  const QUESTIONS_PER_PLANET = 3;
+
+  const state = {
+    unlockedUpTo: 0,     // furthest planet index the player may play
+    totalStars: 0,
+    activePlanet: 0,
+    correctInPlanet: 0,
+    currentAnswer: null,
+    awaitingNext: false
+  };
+
+  // ---------- helpers ----------
+  function $(id){ return document.getElementById(id); }
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $(id).classList.add('active');
+    $('topbar').style.display = (id==='start-screen') ? 'none' : 'flex';
+  }
+
+  // ---------- sound (Web Audio, no external files) ----------
+  let audioCtx = null;
+  function getCtx(){
+    if(!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+  function tone(freq, start, dur, type, vol){
+    const ctx = getCtx();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, ctx.currentTime+start);
+    gain.gain.linearRampToValueAtTime(vol||0.18, ctx.currentTime+start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+start+dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime+start);
+    osc.stop(ctx.currentTime+start+dur+0.02);
+  }
+  function playCorrect(){ tone(523.25,0,.14,'triangle'); tone(659.25,.1,.16,'triangle'); tone(783.99,.2,.22,'triangle'); }
+  function playWrong(){ tone(220,0,.22,'sine',0.14); }
+  function playUnlock(){ tone(392,0,.12,'triangle'); tone(523.25,.1,.12,'triangle'); tone(659.25,.2,.12,'triangle'); tone(783.99,.3,.3,'triangle'); }
+
+  // ---------- math question generation ----------
+  function generateQuestion(levelIndex){
+    let a,b,op,answer;
+    switch(levelIndex){
+      case 0: // Bumi - addition within 10
+        a = randInt(1,7); b = randInt(1,10-a); op='+'; answer=a+b; break;
+      case 1: // Bulan - subtraction within 10
+        a = randInt(3,10); b = randInt(1,a); op='-'; answer=a-b; break;
+      case 2: // Marikh - addition within 20
+        a = randInt(5,15); b = randInt(1,20-a); op='+'; answer=a+b; break;
+      case 3: // Musytari - subtraction within 20
+        a = randInt(10,20); b = randInt(1,a-1); op='-'; answer=a-b; break;
+      default: // Zuhal - mixed within 30
+        op = Math.random()<0.5 ? '+' : '-';
+        if(op==='+'){ a=randInt(5,20); b=randInt(1,30-a); answer=a+b; }
+        else { a=randInt(15,30); b=randInt(1,a-1); answer=a-b; }
+    }
+    const opts = new Set([answer]);
+    let guard = 0;
+    while(opts.size<4 && guard<50){
+      guard++;
+      const wrong = answer + randInt(-6,6);
+      if(wrong>=0 && wrong!==answer) opts.add(wrong);
+    }
+    return { text:`${a} ${op} ${b} = ?`, answer, options: shuffle([...opts]) };
+  }
+
+  // ---------- map rendering ----------
+  function renderMap(){
+    const path = $('map-path');
+    path.innerHTML = '';
+    planets.forEach((p, idx)=>{
+      const stop = document.createElement('div');
+      stop.className = 'planet-stop';
+
+      const isLocked = idx > state.unlockedUpTo;
+      const isActiveNext = idx === state.unlockedUpTo;
+      const completed = idx < state.unlockedUpTo;
+
+      const btn = document.createElement('button');
+      btn.className = 'planet-btn' + (isLocked?' locked':'') + (isActiveNext?' active-stop':'') + (p.ring?' has-ring':'');
+      btn.style.background = p.gradient;
+      btn.setAttribute('aria-label', (isLocked?'Planet terkunci: ':'Mula misi: ') + p.name);
+      if(isLocked) btn.disabled = true;
+      if(isLocked){
+        const lock = document.createElement('div');
+        lock.className='lock-badge';
+        lock.textContent='🔒';
+        btn.appendChild(lock);
+      }
+      if(isActiveNext){
+        const rocket = document.createElement('div');
+        rocket.className='rocket-marker';
+        rocket.textContent='🚀';
+        btn.appendChild(rocket);
+      }
+      btn.addEventListener('click', ()=>{ if(!isLocked) startPlanet(idx); });
+
+      const label = document.createElement('div');
+      label.className='planet-label';
+      label.textContent = p.name;
+
+      const starsLine = document.createElement('div');
+      starsLine.className='planet-stars';
+      starsLine.textContent = completed ? '⭐⭐⭐' : '';
+
+      stop.appendChild(btn);
+      stop.appendChild(label);
+      stop.appendChild(starsLine);
+      path.appendChild(stop);
+    });
+
+    $('map-hint').textContent = state.unlockedUpTo >= planets.length
+      ? 'Kamu dah lawat semua planet! 🎉'
+      : 'Tekan planet bercahaya untuk mula misi';
+  }
+
+  // ---------- question flow ----------
+  function startPlanet(idx){
+    state.activePlanet = idx;
+    state.correctInPlanet = 0;
+    nextQuestion();
+    showScreen('question-screen');
+  }
+
+  function nextQuestion(){
+    state.currentAnswer = generateQuestion(state.activePlanet);
+    state.awaitingNext = false;
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const p = planets[state.activePlanet];
+    $('q-planet-tag').textContent = p.name;
+    $('question-text').textContent = state.currentAnswer.text;
+    $('feedback-msg').textContent = '';
+    $('feedback-msg').className = 'feedback-msg';
+
+    const dots = $('q-progress');
+    dots.innerHTML = '';
+    for(let i=0;i<QUESTIONS_PER_PLANET;i++){
+      const d = document.createElement('div');
+      d.className = 'q-dot' + (i<state.correctInPlanet?' done':(i===state.correctInPlanet?' current':''));
+      dots.appendChild(d);
+    }
+
+    const grid = $('options-grid');
+    grid.innerHTML = '';
+    state.currentAnswer.options.forEach(opt=>{
+      const b = document.createElement('button');
+      b.className='option-btn';
+      b.textContent = opt;
+      b.addEventListener('click', ()=>handleAnswer(opt, b));
+      grid.appendChild(b);
+    });
+  }
+
+  function handleAnswer(selected, btnEl){
+    if(state.awaitingNext) return;
+    const fb = $('feedback-msg');
+    if(selected === state.currentAnswer.answer){
+      state.awaitingNext = true;
+      btnEl.classList.add('correct');
+      state.totalStars++;
+      state.correctInPlanet++;
+      $('star-count').textContent = state.totalStars;
+      fb.textContent = ['Bagus!','Betul tu!','Hebat!','Pandai!'][randInt(0,3)];
+      fb.classList.add('good');
+      playCorrect();
+      setTimeout(()=>{
+        if(state.correctInPlanet >= QUESTIONS_PER_PLANET){
+          finishPlanet();
+        } else {
+          nextQuestion();
+        }
+      }, 700);
+    } else {
+      btnEl.classList.add('wrong');
+      fb.textContent = 'Cuba lagi, kamu boleh!';
+      fb.classList.add('bad');
+      playWrong();
+      setTimeout(()=>btnEl.classList.remove('wrong'), 350);
+    }
+  }
+
+  function finishPlanet(){
+    const p = planets[state.activePlanet];
+    $('fact-planet-visual').style.background = p.gradient;
+    $('fact-eyebrow').textContent = p.factTitle;
+    $('fact-text').textContent = p.fact;
+    $('stars-earned').textContent = '⭐⭐⭐';
+    playUnlock();
+    burstConfetti();
+    showScreen('fact-screen');
+  }
+
+  $('continue-btn').addEventListener('click', ()=>{
+    state.unlockedUpTo = Math.max(state.unlockedUpTo, state.activePlanet+1);
+    if(state.unlockedUpTo >= planets.length){
+      $('final-stars').textContent = state.totalStars;
+      showScreen('complete-screen');
+    } else {
+      renderMap();
+      showScreen('map-screen');
+    }
+  });
+
+  // ---------- confetti ----------
+  function burstConfetti(){
+    const colors = ['#FFC93C','#FF6B6B','#4ECDC4','#8FF0C0','#F5F7FF'];
+    for(let i=0;i<26;i++){
+      const c = document.createElement('div');
+      c.className='confetti-piece';
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.background = colors[randInt(0,colors.length-1)];
+      c.style.animationDuration = (2 + Math.random()*1.4) + 's';
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 3600);
+    }
+  }
+
+  // ---------- navigation ----------
+  $('start-btn').addEventListener('click', ()=>{ renderMap(); showScreen('map-screen'); });
+  $('home-btn').addEventListener('click', ()=>{ renderMap(); showScreen('map-screen'); });
+  $('restart-btn').addEventListener('click', ()=>{
+    state.unlockedUpTo = 0;
+    state.totalStars = 0;
+    $('star-count').textContent = 0;
+    renderMap();
+    showScreen('map-screen');
+  });
+
+  showScreen('start-screen');
+})();
+</script>
+
+</body>
+</html>

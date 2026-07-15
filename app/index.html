@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MathBlok: Matematik Tahun 3</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#7EC9F5;
+    --sky-deep:#4BA3E3;
+    --grass:#6BC24A;
+    --dirt:#8A5A33;
+    --panel:#FFFFFF;
+    --ink:#1F2430;
+    --blu:#00A2FF;
+    --red:#FF4D4D;
+    --gold:#FFB800;
+    --green:#3ECF6E;
+    --purp:#9B5DE5;
+    --shadow:#16305A;
+    --font-d:'Baloo 2', system-ui, sans-serif;
+    --font-b:'Nunito', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--font-b);
+    color:var(--ink);
+    background:linear-gradient(180deg, var(--sky) 0%, #A8DCFA 60%, #CBEBFF 100%);
+    min-height:100%;
+  }
+  button{font-family:inherit; border:none; cursor:pointer; background:none;}
+  button:focus-visible{outline:3px solid var(--blu); outline-offset:2px;}
+
+  #app{max-width:560px; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; position:relative;}
+
+  /* ============ blocky panel style ============ */
+  .blok{
+    background:var(--panel);
+    border:3px solid var(--ink);
+    border-radius:14px;
+    box-shadow:0 5px 0 var(--shadow);
+  }
+  .btn{
+    font-family:var(--font-d);
+    font-weight:700;
+    border:3px solid var(--ink);
+    border-radius:14px;
+    box-shadow:0 5px 0 var(--shadow);
+    padding:12px 20px;
+    font-size:17px;
+    color:#fff;
+    transition:transform .1s ease, box-shadow .1s ease;
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn:active{transform:translateY(4px); box-shadow:0 1px 0 var(--shadow);}
+  .btn-blu{background:var(--blu);}
+  .btn-red{background:var(--red);}
+  .btn-green{background:var(--green);}
+  .btn-gold{background:var(--gold); color:var(--ink);}
+  .btn-purp{background:var(--purp);}
+  .btn-ghost{background:#EDF1F7; color:var(--ink);}
+  .btn[disabled]{filter:grayscale(.8) brightness(.85); cursor:not-allowed;}
+  .btn-big{font-size:20px; padding:16px 28px; border-radius:18px;}
+  .btn-sm{font-size:14px; padding:8px 14px; box-shadow:0 3px 0 var(--shadow);}
+
+  /* ============ topbar ============ */
+  .topbar{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px;
+    position:sticky; top:0; z-index:10;
+  }
+  .topbar .spacer{flex:1;}
+  .hud-pill{
+    font-family:var(--font-d); font-weight:700; font-size:15px;
+    background:var(--panel); border:3px solid var(--ink); border-radius:999px;
+    box-shadow:0 4px 0 var(--shadow);
+    padding:6px 14px; display:flex; align-items:center; gap:6px;
+  }
+  .icon-btn{
+    width:42px; height:42px; border-radius:12px;
+    background:var(--panel); border:3px solid var(--ink);
+    box-shadow:0 4px 0 var(--shadow);
+    font-size:19px; display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--shadow);}
+
+  .screen{display:none; flex-direction:column; gap:14px; padding:6px 16px 90px; animation:pop .28s ease;}
+  .screen.active{display:flex;}
+  @keyframes pop{from{opacity:0; transform:translateY(10px) scale(.985);} to{opacity:1; transform:none;}}
+
+  /* ============ bottom nav ============ */
+  .bottom-nav{
+    position:fixed; bottom:10px; left:50%; transform:translateX(-50%);
+    width:min(540px, calc(100% - 20px));
+    display:flex; gap:8px; padding:8px;
+    background:var(--panel); border:3px solid var(--ink); border-radius:18px;
+    box-shadow:0 5px 0 var(--shadow);
+    z-index:20;
+  }
+  .nav-btn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
+    font-family:var(--font-d); font-weight:700; font-size:11px; color:#7A8199;
+    border-radius:12px; padding:6px 2px;
+  }
+  .nav-btn .nav-ico{font-size:20px;}
+  .nav-btn.on{background:#E3F3FF; color:var(--blu);}
+
+  /* ============ home ============ */
+  .hero-home{
+    padding:18px; display:flex; gap:14px; align-items:center;
+    background:linear-gradient(135deg,#FFFDF5,#FFF6DC);
+  }
+  .hero-home .hi{font-family:var(--font-d); font-size:21px; font-weight:800;}
+  .hero-home .sub{font-size:13px; font-weight:700; color:#6B7280; margin-top:2px;}
+  .stat-row{display:flex; gap:10px;}
+  .stat-card{flex:1; padding:12px; text-align:center;}
+  .stat-card .num{font-family:var(--font-d); font-size:22px; font-weight:800;}
+  .stat-card .lab{font-size:11px; font-weight:800; color:#7A8199; text-transform:uppercase; letter-spacing:.04em;}
+
+  /* ============ avatar (blocky figure) ============ */
+  .avatar-stage{position:relative; width:120px; height:150px; flex:none;}
+  .avatar{position:absolute; left:50%; bottom:6px; transform:translateX(-50%); width:84px; height:126px;}
+  .av-part{position:absolute; border:3px solid var(--ink); border-radius:6px;}
+  .av-head{width:44px; height:40px; left:20px; top:0; background:#FFD34D; z-index:3;}
+  .av-face{position:absolute; left:31px; top:12px; z-index:4; width:22px; display:flex; justify-content:space-between;}
+  .av-eye{width:6px; height:9px; background:var(--ink); border-radius:3px;}
+  .av-smile{position:absolute; left:35px; top:26px; width:14px; height:7px; border:3px solid var(--ink); border-top:none; border-radius:0 0 10px 10px; z-index:4;}
+  .av-torso{width:52px; height:44px; left:16px; top:42px; background:var(--blu); z-index:2;}
+  .av-arm{width:15px; height:40px; top:44px; background:#FFD34D; z-index:1;}
+  .av-arm.l{left:0;} .av-arm.r{right:0;}
+  .av-leg{width:20px; height:38px; top:86px; background:#3E9B3E; z-index:1;}
+  .av-leg.l{left:18px;} .av-leg.r{left:46px;}
+  .av-hat{position:absolute; left:50%; transform:translateX(-50%); top:-22px; font-size:30px; z-index:5;}
+  .av-tool{position:absolute; right:-24px; top:38px; font-size:30px; z-index:5; transform:rotate(20deg);}
+  .av-pet{position:absolute; left:-30px; bottom:0; font-size:26px; z-index:5;}
+  .av-aura{position:absolute; inset:-10px -16px; border-radius:50%; z-index:0; opacity:.5; filter:blur(2px);}
+  .float{animation:bob 2.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-7px);}}
+
+  /* ============ topic list ============ */
+  .sect-title{font-family:var(--font-d); font-size:19px; font-weight:800; display:flex; align-items:center; gap:8px;}
+  .topic-card{
+    display:flex; align-items:center; gap:12px; padding:13px 14px; width:100%; text-align:left;
+  }
+  .topic-card:active{transform:translateY(3px); box-shadow:0 2px 0 var(--shadow);}
+  .topic-ico{
+    width:48px; height:48px; flex:none; border:3px solid var(--ink); border-radius:12px;
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+  }
+  .topic-meta{flex:1; min-width:0;}
+  .topic-name{font-family:var(--font-d); font-weight:700; font-size:15.5px; line-height:1.2;}
+  .topic-prog{font-size:12px; font-weight:800; color:#7A8199; margin-top:2px;}
+  .topic-badge{font-size:20px;}
+
+  /* ============ lesson ============ */
+  .lesson-note{padding:16px;}
+  .lesson-note h3{font-family:var(--font-d); font-size:16.5px; font-weight:800; color:var(--sky-deep); margin-bottom:6px;}
+  .lesson-note p{font-size:14.5px; font-weight:600; line-height:1.6;}
+  .lesson-note .eg{
+    margin-top:10px; padding:10px 12px; border-radius:10px;
+    background:#F1F8E9; border:2px dashed #7CB342;
+    font-weight:800; font-size:14px;
+  }
+
+  /* ============ quiz / battle shared ============ */
+  .q-head{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .q-count{font-family:var(--font-d); font-weight:800; font-size:14px; color:#5B6478;}
+  .hearts{font-size:18px; letter-spacing:2px;}
+  .q-render{display:flex; justify-content:center; padding:6px 0;}
+  .q-card{padding:20px 16px; text-align:center;}
+  .q-text{font-family:var(--font-d); font-size:24px; font-weight:800; line-height:1.35;}
+  .opts{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .opt{
+    font-family:var(--font-d); font-weight:700; font-size:19px;
+    background:var(--panel); border:3px solid var(--ink); border-radius:14px;
+    box-shadow:0 5px 0 var(--shadow); padding:16px 8px; color:var(--ink);
+  }
+  .opt:active{transform:translateY(3px); box-shadow:0 2px 0 var(--shadow);}
+  .opt.ok{background:var(--green); color:#fff;}
+  .opt.no{background:var(--red); color:#fff; animation:shake .3s ease;}
+  @keyframes shake{25%{transform:translateX(-6px);} 75%{transform:translateX(6px);}}
+  .fb{min-height:24px; text-align:center; font-weight:900; font-size:15px;}
+  .fb.good{color:#1B8A46;} .fb.bad{color:#D63030;}
+
+  .bar-wrap{height:16px; border:3px solid var(--ink); border-radius:999px; background:#E8ECF3; overflow:hidden;}
+  .bar-fill{height:100%; background:linear-gradient(90deg,var(--gold),#FFD34D); width:0%; transition:width .3s ease;}
+
+  /* ============ battle ============ */
+  .arena{
+    position:relative; padding:14px; overflow:hidden;
+    background:linear-gradient(180deg,#8FD3FF 0 55%, var(--grass) 55% 78%, var(--dirt) 78% 100%);
+  }
+  .arena-row{display:flex; justify-content:space-between; align-items:flex-end; min-height:150px;}
+  .monster{text-align:center; width:110px;}
+  .monster .m-emoji{font-size:56px; display:block; animation:mBob 2s ease-in-out infinite;}
+  @keyframes mBob{0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-6px) scale(1.04);}}
+  .monster.hit .m-emoji{animation:mHit .35s ease;}
+  @keyframes mHit{30%{transform:translateX(8px) rotate(8deg); filter:brightness(1.6);} 100%{transform:none;}}
+  .hpbar{height:12px; border:2.5px solid var(--ink); border-radius:999px; background:#fff; overflow:hidden; margin-top:6px;}
+  .hpfill{height:100%; background:var(--red); width:100%; transition:width .3s ease;}
+  .m-name{font-family:var(--font-d); font-weight:800; font-size:12.5px; margin-top:4px; background:rgba(255,255,255,.85); border-radius:8px; padding:1px 6px; display:inline-block;}
+  .battle-avatar-holder{position:relative; width:110px; height:140px;}
+
+  .level-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  .lvl{
+    aspect-ratio:1; border:3px solid var(--ink); border-radius:14px;
+    box-shadow:0 4px 0 var(--shadow);
+    font-family:var(--font-d); font-weight:800; font-size:18px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    background:var(--panel); color:var(--ink);
+  }
+  .lvl .lvl-sub{font-size:10px; font-weight:800; color:#7A8199;}
+  .lvl.done{background:#E9FBEF; border-color:#1B8A46; color:#1B8A46;}
+  .lvl.now{background:var(--gold);}
+  .lvl.lock{filter:grayscale(1) brightness(.9); color:#9AA1B2;}
+
+  /* ============ shop ============ */
+  .shop-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .shop-item{padding:12px; text-align:center; display:flex; flex-direction:column; gap:6px; align-items:center;}
+  .shop-emoji{font-size:38px;}
+  .shop-name{font-family:var(--font-d); font-weight:700; font-size:14px; line-height:1.15;}
+  .shop-eff{font-size:11px; font-weight:800; color:#7A8199; min-height:14px;}
+
+  /* ============ settings ============ */
+  .field label{display:block; font-weight:900; font-size:13px; margin-bottom:6px;}
+  .field input{
+    width:100%; font-family:var(--font-b); font-weight:700; font-size:15px;
+    padding:12px; border:3px solid var(--ink); border-radius:12px; background:#fff;
+  }
+  .hintbox{padding:12px 14px; background:#FFF8E1; border:2px dashed var(--gold); border-radius:12px; font-size:13px; font-weight:700; line-height:1.55;}
+
+  .result-hero{text-align:center; padding:22px 16px;}
+  .result-emoji{font-size:64px;}
+  .result-title{font-family:var(--font-d); font-size:24px; font-weight:800; margin-top:6px;}
+  .result-sub{font-weight:800; color:#5B6478; margin-top:4px;}
+
+  .chartbox{display:flex; align-items:flex-end; gap:14px; height:150px; padding:10px 14px 0;}
+  .chartbox .cb{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%;}
+  .cb .cb-bar{width:70%; border:3px solid var(--ink); border-radius:8px 8px 0 0;}
+  .cb .cb-lab{font-size:13px; font-weight:900; margin-top:5px;}
+  .picto{display:flex; flex-direction:column; gap:6px; padding:8px 4px;}
+  .picto .prow{display:flex; align-items:center; gap:8px; font-weight:900; font-size:14px;}
+  .picto .prow .plab{width:70px; flex:none;}
+  .picto-note{font-size:12px; font-weight:800; color:#5B6478; text-align:center;}
+
+  .confetti-piece{position:fixed; top:-12px; width:9px; height:14px; z-index:99; border-radius:2px; animation:fall linear forwards;}
+  @keyframes fall{to{transform:translateY(110vh) rotate(380deg);}}
+
+  .toast{
+    position:fixed; left:50%; bottom:86px; transform:translateX(-50%);
+    background:var(--ink); color:#fff; font-weight:800; font-size:13.5px;
+    padding:10px 18px; border-radius:999px; z-index:60; opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .toast.show{opacity:1;}
+
+  /* ============ infographic lessons ============ */
+  .ig-slider{
+    display:flex; overflow-x:auto; overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    gap:12px; margin:0 -16px; padding:2px 16px 10px;
+    scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    scroll-behavior:smooth;
+  }
+  .ig-slider::-webkit-scrollbar{display:none;}
+  .ig-slide{
+    flex:0 0 92%; scroll-snap-align:center; min-width:0;
+    display:flex; align-items:stretch;
+  }
+  .ig-slide > .blok{width:100%; display:flex; flex-direction:column;}
+  .ig-slide > .blok > .ig-body{flex:1; justify-content:center;}
+  .ig-dots{display:flex; gap:6px; justify-content:center; padding:2px 0 4px; flex-wrap:wrap;}
+  .ig-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(31,36,48,.22);
+    transition:width .25s ease, background .25s ease, border-radius .25s;
+  }
+  .ig-dot.on{background:var(--blu); width:22px; border-radius:4px;}
+  .ig-hint{
+    text-align:center; font-size:12.5px; font-weight:800; color:#5B6478;
+    padding:2px 0 6px;
+    animation:pulseR 1.8s ease-in-out infinite;
+  }
+  @keyframes pulseR{
+    0%,100%{transform:translateX(0); opacity:.7;}
+    50%{transform:translateX(8px); opacity:1;}
+  }
+  #app{overflow-x:hidden;}
+
+  .ig{padding:0; overflow:hidden; width:100%;}
+  .ig-head{
+    font-family:var(--font-d); font-weight:800; font-size:16px; color:#fff;
+    padding:10px 14px; border-bottom:3px solid var(--ink);
+    text-shadow:0 1px 0 rgba(0,0,0,.25);
+  }
+  .ig-body{padding:14px 12px; display:flex; flex-direction:column; gap:11px; align-items:center;}
+  .chips{display:flex; flex-wrap:wrap; gap:7px; justify-content:center;}
+  .chip{border:2.5px solid var(--ink); border-radius:999px; padding:5px 11px; font-weight:900; font-size:12.5px; background:#fff;}
+  .chip.gold{background:#FFF3C4;} .chip.blue{background:#E3F3FF;}
+  .chip.pink{background:#FFE3EC;} .chip.green{background:#E9FBEF;} .chip.purp{background:#F0E6FF;}
+  .pv-row{display:flex; gap:9px;}
+  .pv-col{text-align:center;}
+  .pv-digit{
+    width:52px; height:56px; border:3px solid var(--ink); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-d); font-size:27px; font-weight:800; color:#fff;
+    box-shadow:0 4px 0 var(--shadow);
+  }
+  .pv-lab{font-size:10.5px; font-weight:900; margin-top:5px; color:#5B6478; text-transform:uppercase;}
+  .flow{display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:center;}
+  .fl-box{
+    border:3px solid var(--ink); border-radius:10px; background:#fff;
+    font-family:var(--font-d); font-weight:800; font-size:15.5px; padding:7px 11px;
+    box-shadow:0 3px 0 var(--shadow);
+  }
+  .fl-op{font-weight:900; font-size:12px; background:var(--ink); color:#fff; border-radius:999px; padding:4px 9px;}
+  .gal{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:100%;}
+  .gal.g4{grid-template-columns:repeat(4,1fr);}
+  .gal-item{text-align:center; font-weight:900; font-size:11.5px; display:flex; flex-direction:column; align-items:center; gap:3px;}
+  .big-eq{font-family:var(--font-d); font-weight:800; font-size:21px; text-align:center;}
+  .emoji-line{font-size:23px; letter-spacing:2px; text-align:center; line-height:1.6;}
+  .cap{font-size:12.5px; font-weight:800; color:#5B6478; text-align:center;}
+  .note-my{
+    width:72px; height:38px; border:3px solid var(--ink); border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-d); font-weight:800; font-size:13px; color:#fff;
+    box-shadow:0 3px 0 var(--shadow);
+  }
+  .pie-demo{width:96px; height:96px; border-radius:50%; border:3.5px solid var(--ink); box-shadow:0 4px 0 var(--shadow);}
+
+  /* ============ sifir dojo ============ */
+  .cikgu{display:flex; gap:10px; align-items:flex-start; padding:12px;}
+  .cikgu .c-emoji{font-size:34px; flex:none;}
+  .c-bubble{
+    background:#FFFDF2; border:3px solid var(--ink); border-radius:14px;
+    padding:10px 13px; font-weight:800; font-size:13.5px; line-height:1.55; flex:1;
+  }
+  .trow{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 16px; border-bottom:2px dashed #E3E8F0;
+    font-family:var(--font-d); font-weight:700; font-size:17px;
+  }
+  .trow:last-child{border-bottom:none;}
+  .trow .t-ans{color:var(--sky-deep);}
+  .timer-fill{height:100%; background:linear-gradient(90deg,#FF4D4D,#FFB800); width:100%;}
+
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;}}
+  @media (max-width:370px){ .q-text{font-size:20px;} .opts{gap:9px;} }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="hud-pill">🪙 <span id="hud-coins">0</span></div>
+    <div class="hud-pill">🏅 <span id="hud-badges">0</span>/8</div>
+    <div class="spacer"></div>
+    <button class="icon-btn" id="btn-lang" aria-label="Tukar bahasa / Change language" style="width:auto; padding:0 12px; font-size:14px; font-family:var(--font-d); font-weight:800;">🌐 BM</button>
+    <button class="icon-btn" id="btn-settings" aria-label="Tetapan">⚙️</button>
+  </div>
+
+  <!-- ================= HOME ================= -->
+  <section class="screen active" id="scr-home">
+    <div class="blok hero-home">
+      <div class="avatar-stage" id="home-avatar"></div>
+      <div>
+        <div class="hi">Hai, <span id="home-name">Adik</span>! 👋</div>
+        <div class="sub" id="home-sub">Jom belajar & main hari ini!</div>
+        <button class="btn btn-gold btn-sm" id="btn-goto-shop" style="margin-top:10px;">🛍️ Kedai Gear</button>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="blok stat-card"><div class="num" id="stat-coins">0</div><div class="lab" id="lab-koin">Koin</div></div>
+      <div class="blok stat-card"><div class="num" id="stat-badges">0</div><div class="lab" id="lab-lencana">Lencana</div></div>
+      <div class="blok stat-card"><div class="num" id="stat-lvl">0</div><div class="lab" id="lab-lvl">Level Game</div></div>
+    </div>
+    <div class="sect-title" id="home-topics-title">📚 Pilih Tajuk</div>
+    <div id="topic-list" style="display:flex; flex-direction:column; gap:11px;"></div>
+  </section>
+
+  <!-- ================= LESSON ================= -->
+  <section class="screen" id="scr-lesson">
+    <div class="sect-title" id="lesson-title">Tajuk</div>
+    <div id="lesson-notes" style="display:flex; flex-direction:column; gap:12px;"></div>
+    <button class="btn btn-red btn-big" id="btn-start-quiz">📝 Sedia? Jom Uji Minda!</button>
+    <button class="btn btn-ghost" id="btn-lesson-back">⬅️ Kembali</button>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="screen" id="scr-quiz">
+    <div class="q-head">
+      <div class="q-count" id="quiz-count">Soalan 1/10</div>
+      <div class="q-count" id="quiz-topic-tag"></div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="quiz-bar"></div></div>
+    <div class="q-render" id="quiz-render"></div>
+    <div class="blok q-card"><div class="q-text" id="quiz-text">?</div></div>
+    <div class="opts" id="quiz-opts"></div>
+    <div class="fb" id="quiz-fb" aria-live="polite"></div>
+  </section>
+
+  <!-- ================= QUIZ RESULT ================= -->
+  <section class="screen" id="scr-result">
+    <div class="blok result-hero">
+      <div class="result-emoji" id="res-emoji">🎉</div>
+      <div class="result-title" id="res-title">Hebat!</div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="result-sub" id="res-coins" style="color:#B8860B;"></div>
+      <div class="result-sub" id="res-sync" style="font-size:12px;"></div>
+    </div>
+    <button class="btn btn-blu btn-big" id="btn-res-retry">🔁 Cuba Lagi</button>
+    <button class="btn btn-green btn-big" id="btn-res-home">🏠 Halaman Utama</button>
+  </section>
+
+  <!-- ================= GAME: LEVEL SELECT ================= -->
+  <section class="screen" id="scr-game">
+    <div class="sect-title" id="game-title">⚔️ BlokQuest: Menara Cabaran</div>
+    <div class="hintbox" id="game-hint"></div>
+    <div class="level-grid" id="level-grid"></div>
+  </section>
+
+  <!-- ================= GAME: BATTLE ================= -->
+  <section class="screen" id="scr-battle">
+    <div class="q-head">
+      <div class="q-count" id="battle-lvl-tag">Level 1</div>
+      <div class="hearts" id="battle-hearts">❤️❤️❤️</div>
+    </div>
+    <div class="blok arena">
+      <div class="arena-row">
+        <div class="battle-avatar-holder" id="battle-avatar"></div>
+        <div class="monster" id="monster">
+          <span class="m-emoji" id="m-emoji">👾</span>
+          <div class="hpbar"><div class="hpfill" id="m-hp"></div></div>
+          <span class="m-name" id="m-name">Raksasa</span>
+        </div>
+      </div>
+    </div>
+    <div class="q-render" id="battle-render"></div>
+    <div class="blok q-card" style="padding:14px;"><div class="q-text" id="battle-text" style="font-size:21px;">?</div></div>
+    <div class="opts" id="battle-opts"></div>
+    <div class="fb" id="battle-fb" aria-live="polite"></div>
+  </section>
+
+  <!-- ================= SHOP ================= -->
+  <section class="screen" id="scr-shop">
+    <div class="sect-title" id="shop-title">🛍️ Kedai Gear</div>
+    <div class="blok hero-home" style="padding:12px;">
+      <div class="avatar-stage" id="shop-avatar"></div>
+      <div>
+        <div class="hi" style="font-size:16px;" id="shop-av-title">Avatar Kamu</div>
+        <div class="sub" id="shop-av-sub">Beli & pakai gear untuk jadi lebih power!</div>
+      </div>
+    </div>
+    <div class="shop-grid" id="shop-grid"></div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section class="screen" id="scr-settings">
+    <div class="sect-title" id="set-title">⚙️ Tetapan (Untuk Ibu Bapa)</div>
+    <div class="blok" style="padding:16px; display:flex; flex-direction:column; gap:14px;">
+      <div class="field">
+        <label for="set-name" id="lab-name">Nama anak</label>
+        <input id="set-name" placeholder="cth: Aisyah" maxlength="20">
+      </div>
+      <div class="field">
+        <label for="set-sheet" id="lab-sheet">URL Google Apps Script (untuk rekod keputusan)</label>
+        <input id="set-sheet" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <button class="btn btn-green" id="btn-save-settings">💾 Simpan</button>
+      <button class="btn btn-ghost btn-sm" id="btn-test-sheet">🧪 Hantar Data Ujian ke Sheet</button>
+    </div>
+    <div class="hintbox" id="set-hint">📊 Setiap kali anak habis kuiz atau menang level game, keputusan (tajuk, markah, masa) akan dihantar automatik ke Google Sheet anda. Rujuk fail <b>panduan-google-sheets.md</b> untuk cara setup — hanya 5 minit!</div>
+  </section>
+
+  <!-- ================= SIFIR: HUB ================= -->
+  <section class="screen" id="scr-sifir">
+    <div class="sect-title" id="sifir-title">✖️ Dojo Sifir</div>
+    <div class="blok cikgu"><div class="c-emoji">🧑‍🏫</div><div class="c-bubble" id="cikgu-msg">Selamat datang ke Dojo Sifir!</div></div>
+    <div class="level-grid" id="sifir-grid"></div>
+    <button class="btn btn-purp btn-big" id="btn-weak-drill">🎯 Latih Fakta Lemah (<span id="weak-count">0</span>)</button>
+    <div class="hintbox" id="sifir-hint"></div>
+  </section>
+
+  <!-- ================= SIFIR: LEARN ================= -->
+  <section class="screen" id="scr-sifir-learn">
+    <div class="sect-title" id="sl-title">Sifir 2</div>
+    <div class="blok cikgu"><div class="c-emoji">🧑‍🏫</div><div class="c-bubble" id="sl-tip"></div></div>
+    <div class="blok" id="sl-table" style="overflow:hidden;"></div>
+    <button class="btn btn-blu btn-big" id="btn-sf-latih">✏️ Latih — ikut turutan</button>
+    <button class="btn btn-gold btn-big" id="btn-sf-cabaran">🎲 Cabaran — rawak + bahagi</button>
+    <button class="btn btn-red btn-big" id="btn-sf-master">⏱️ Ujian Master — lawan masa!</button>
+    <button class="btn btn-ghost" id="btn-sf-back">⬅️ Kembali ke Dojo</button>
+  </section>
+
+  <!-- ================= SIFIR: DRILL ================= -->
+  <section class="screen" id="scr-sifir-drill">
+    <div class="q-head">
+      <div class="q-count" id="sd-mode">Latih</div>
+      <div class="q-count" id="sd-prog">1/12</div>
+    </div>
+    <div class="bar-wrap"><div class="bar-fill" id="sd-bar"></div></div>
+    <div class="bar-wrap" id="sd-timer-wrap" style="display:none;"><div class="timer-fill" id="sd-timer"></div></div>
+    <div class="blok q-card"><div class="q-text" id="sd-text" style="font-size:34px;">?</div></div>
+    <div class="opts" id="sd-opts"></div>
+    <div class="fb" id="sd-fb" aria-live="polite"></div>
+  </section>
+
+  <!-- bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn on" data-nav="scr-home"><span class="nav-ico">🏠</span>Utama</button>
+    <button class="nav-btn" data-nav="scr-sifir"><span class="nav-ico">✖️</span>Sifir</button>
+    <button class="nav-btn" data-nav="scr-game"><span class="nav-ico">⚔️</span>BlokQuest</button>
+    <button class="nav-btn" data-nav="scr-shop"><span class="nav-ico">🛍️</span>Kedai</button>
+    <button class="nav-btn" data-nav="scr-settings"><span class="nav-ico">⚙️</span>Tetapan</button>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+<script>
+(function(){
+"use strict";
+
+/* ================= UTIL & I18N CORE ================= */
+function $(id){return document.getElementById(id);}
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(arr){return arr[ri(0,arr.length-1)];}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fmt(n){return n.toLocaleString('ms-MY');}
+function rm(n){return 'RM' + n.toFixed(2);}
+const tr=(ms,en)=>S.lang==='en'?en:ms;
+
+const ONES=['kosong','satu','dua','tiga','empat','lima','enam','tujuh','lapan','sembilan'];
+function numWordsMS(n){
+  if(n===0) return 'kosong';
+  let w=[]; const rb=Math.floor(n/1000), rt=Math.floor(n%1000/100), pl=Math.floor(n%100/10), sa=n%10;
+  if(rb) w.push(rb===1?'seribu':ONES[rb]+' ribu');
+  if(rt) w.push(rt===1?'seratus':ONES[rt]+' ratus');
+  const dua=n%100;
+  if(dua>=10&&dua<=19){ w.push(dua===10?'sepuluh':(dua===11?'sebelas':ONES[dua-10]+' belas')); }
+  else{ if(pl) w.push(ONES[pl]+' puluh'); if(sa) w.push(ONES[sa]); }
+  return w.join(' ');
+}
+const EONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const ETENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function numWordsEN(n){
+  if(n===0) return 'zero';
+  let w=[]; const rb=Math.floor(n/1000), rt=Math.floor(n%1000/100), rest=n%100;
+  if(rb) w.push(EONES[rb]+' thousand');
+  if(rt) w.push(EONES[rt]+' hundred');
+  if(rest){ if(rest<20) w.push(EONES[rest]);
+    else{ const t=ETENS[Math.floor(rest/10)], o=rest%10; w.push(o? t+'-'+EONES[o] : t); } }
+  return w.join(' ');
+}
+function numWords(n){ return S.lang==='en'? numWordsEN(n): numWordsMS(n); }
+
+const mem={};
+const store={
+  get(k){ try{ const v=localStorage.getItem(k); return v!==null?v:(k in mem?mem[k]:null); }catch(e){ return k in mem?mem[k]:null; } },
+  set(k,v){ mem[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
+};
+
+/* ================= STATE ================= */
+const DEFAULT_STATE={
+  name:'Adik', sheetUrl:'', lang:'ms',
+  coins:0, badges:{}, levelsCleared:0,
+  owned:[], equipped:{hat:null,tool:null,pet:null,aura:null},
+  sifir:{}, weak:{}
+};
+let S=DEFAULT_STATE;
+try{ const raw=store.get('mathblok_v1'); if(raw) S=Object.assign({},DEFAULT_STATE,JSON.parse(raw)); }catch(e){}
+S.sifir=S.sifir||{}; S.weak=S.weak||{}; S.lang=S.lang||'ms';
+function save(){ store.set('mathblok_v1', JSON.stringify(S)); }
+
+/* ================= SOUND ================= */
+let AC=null;
+function ctx(){ if(!AC){const C=window.AudioContext||window.webkitAudioContext; if(C)AC=new C();} return AC; }
+function tone(f,st,d,ty,v){const c=ctx(); if(!c)return; const o=c.createOscillator(),g=c.createGain();
+  o.type=ty||'triangle'; o.frequency.value=f;
+  g.gain.setValueAtTime(0,c.currentTime+st); g.gain.linearRampToValueAtTime(v||.15,c.currentTime+st+.02);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+st+d);
+  o.connect(g).connect(c.destination); o.start(c.currentTime+st); o.stop(c.currentTime+st+d+.05);}
+const sfx={
+  ok(){tone(523,0,.12);tone(659,.09,.12);tone(784,.18,.2);},
+  no(){tone(196,0,.2,'sine',.12);},
+  coin(){tone(988,0,.08);tone(1319,.07,.14);},
+  win(){tone(523,0,.1);tone(659,.1,.1);tone(784,.2,.1);tone(1047,.3,.3);},
+  hit(){tone(140,0,.12,'square',.1);tone(90,.06,.14,'square',.08);}
+};
+
+/* ================= SHOP ITEMS ================= */
+const ITEMS=[
+  {id:'topi_biru',  emoji:'🧢', slot:'hat',  cost:40,  nm:['Topi Biru','Blue Cap'], ef:['','']},
+  {id:'topi_sihir', emoji:'🎩', slot:'hat',  cost:120, nm:['Topi Ahli Sihir','Wizard Hat'], ef:['','']},
+  {id:'mahkota',    emoji:'👑', slot:'hat',  cost:300, nm:['Mahkota Raja','King\'s Crown'], ef:['+1 🪙 setiap jawapan betul','+1 🪙 per correct answer']},
+  {id:'pedang_kayu',emoji:'🗡️', slot:'tool', cost:80,  nm:['Pedang Kayu','Wooden Sword'], ef:['+1 serangan dalam game','+1 attack in game']},
+  {id:'beliung',    emoji:'⛏️', slot:'tool', cost:180, nm:['Beliung Besi','Iron Pickaxe'], ef:['+1 serangan dalam game','+1 attack in game']},
+  {id:'pedang_api', emoji:'⚔️', slot:'tool', cost:400, nm:['Pedang Api','Fire Sword'], ef:['+2 serangan dalam game','+2 attack in game']},
+  {id:'pet_kucing', emoji:'🐱', slot:'pet',  cost:100, nm:['Pet Kucing','Pet Cat'], ef:['+1 🪙 setiap jawapan betul','+1 🪙 per correct answer']},
+  {id:'pet_naga',   emoji:'🐲', slot:'pet',  cost:500, nm:['Pet Naga','Pet Dragon'], ef:['+2 🪙 setiap jawapan betul','+2 🪙 per correct answer']},
+  {id:'aura_api',   emoji:'🔥', slot:'aura', cost:250, nm:['Aura Api','Fire Aura'], ef:['',''], color:'radial-gradient(circle,#FFB199,#FF4D4D)'},
+  {id:'aura_petir', emoji:'⚡', slot:'aura', cost:250, nm:['Aura Petir','Lightning Aura'], ef:['',''], color:'radial-gradient(circle,#FFF3B0,#FFB800)'}
+];
+function itemById(id){return ITEMS.find(x=>x.id===id);}
+function itemName(it){return S.lang==='en'?it.nm[1]:it.nm[0];}
+function itemEff(it){return S.lang==='en'?it.ef[1]:it.ef[0];}
+function coinBonus(){let b=0;
+  if(S.equipped.pet==='pet_kucing')b+=1;
+  if(S.equipped.pet==='pet_naga')b+=2;
+  if(S.equipped.hat==='mahkota')b+=1;
+  return b;}
+function attackPower(){let a=1;
+  if(S.equipped.tool==='pedang_kayu'||S.equipped.tool==='beliung')a+=1;
+  if(S.equipped.tool==='pedang_api')a+=2;
+  return a;}
+
+/* ================= SVG RENDER HELPERS ================= */
+function clockSVG(h,m){
+  const ha=((h%12)+m/60)*30, ma=m*6;
+  return `<svg width="140" height="140" viewBox="0 0 100 100" role="img" aria-label="Jam">
+    <circle cx="50" cy="50" r="46" fill="#fff" stroke="#1F2430" stroke-width="4"/>
+    ${[...Array(12)].map((_,i)=>{const a=i*30*Math.PI/180;
+      return `<line x1="${50+38*Math.sin(a)}" y1="${50-38*Math.cos(a)}" x2="${50+43*Math.sin(a)}" y2="${50-43*Math.cos(a)}" stroke="#1F2430" stroke-width="3"/>`;}).join('')}
+    <line x1="50" y1="50" x2="${50+22*Math.sin(ha*Math.PI/180)}" y2="${50-22*Math.cos(ha*Math.PI/180)}" stroke="#1F2430" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="50" x2="${50+33*Math.sin(ma*Math.PI/180)}" y2="${50-33*Math.cos(ma*Math.PI/180)}" stroke="#FF4D4D" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="3.5" fill="#1F2430"/></svg>`;
+}
+function polySVG(n,size){
+  size=size||130;
+  const pts=[...Array(n)].map((_,i)=>{const a=(i/n)*2*Math.PI-Math.PI/2;
+    return `${60+46*Math.cos(a)},${60+46*Math.sin(a)}`;}).join(' ');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 120 120"><polygon points="${pts}" fill="#BEE3FF" stroke="#1F2430" stroke-width="4" stroke-linejoin="round"/></svg>`;
+}
+function barChartHTML(labels,vals,colors){
+  const mx=Math.max(...vals);
+  return `<div class="blok" style="width:100%;"><div class="chartbox">`+
+    labels.map((l,i)=>`<div class="cb"><div class="cb-bar" style="height:${Math.round(vals[i]/mx*100)}%; background:${colors[i]};"></div><div class="cb-lab">${l}</div></div>`).join('')+
+  `</div><div class="picto-note" style="padding:0 0 10px;">${tr('Palang paling tinggi = paling banyak','Tallest bar = the most')}</div></div>`;
+}
+function pictoHTML(labels,vals,emoji,unit){
+  return `<div class="blok" style="width:100%; padding:10px;"><div class="picto">`+
+    labels.map((l,i)=>`<div class="prow"><span class="plab">${l}</span><span>${emoji.repeat(vals[i])}</span></div>`).join('')+
+  `</div><div class="picto-note">${tr(`Satu ${emoji} mewakili ${unit} unit`,`One ${emoji} represents ${unit} units`)}</div></div>`;
+}
+
+/* ================= TOPICS ================= */
+const TOPICS=[
+ {id:'t1', ico:'🔢', col:'#E3F2FD', nm:['Nombor Hingga 10,000','Numbers Up To 10,000']},
+ {id:'t2', ico:'➕', col:'#FFF3E0', nm:['Operasi Asas (+, −, ×, ÷)','Basic Operations (+, −, ×, ÷)']},
+ {id:'t3', ico:'🍕', col:'#FCE4EC', nm:['Pecahan, Perpuluhan & Peratus','Fractions, Decimals & Percentages']},
+ {id:'t4', ico:'💰', col:'#E8F5E9', nm:['Wang Hingga RM10,000','Money Up To RM10,000']},
+ {id:'t5', ico:'🕐', col:'#EDE7F6', nm:['Masa dan Waktu','Time']},
+ {id:'t6', ico:'📏', col:'#E0F7FA', nm:['Ukuran dan Sukatan','Measurement']},
+ {id:'t7', ico:'🔷', col:'#FFF8E1', nm:['Geometri','Geometry']},
+ {id:'t8', ico:'📊', col:'#F3E5F5', nm:['Pengurusan Data','Data Handling']}
+];
+function tName(t){return S.lang==='en'?t.nm[1]:t.nm[0];}
+
+/* ================= INFOGRAPHIC HELPERS ================= */
+function igCard(col,title,body){return `<div class="blok ig"><div class="ig-head" style="background:${col};">${title}</div><div class="ig-body">${body}</div></div>`;}
+function chips(arr,cls){return `<div class="chips">${arr.map(c=>`<span class="chip ${cls||''}">${c}</span>`).join('')}</div>`;}
+function flow(items){return `<div class="flow">${items.map(x=>x.op?`<span class="fl-op">${x.t}</span>`:`<span class="fl-box"${x.c?` style="background:${x.c};color:#fff;"`:''}>${x.t}</span>`).join('')}</div>`;}
+function cap(t){return `<div class="cap">${t}</div>`;}
+function beq(t){return `<div class="big-eq">${t}</div>`;}
+function pizzaSVG(n,k,size,color){
+  size=size||92; color=color||'#FF8FA3'; let p='';
+  for(let i=0;i<n;i++){
+    const a0=(i/n)*2*Math.PI-Math.PI/2, a1=((i+1)/n)*2*Math.PI-Math.PI/2;
+    p+=`<path d="M50,50 L${50+45*Math.cos(a0)},${50+45*Math.sin(a0)} A45,45 0 0,1 ${50+45*Math.cos(a1)},${50+45*Math.sin(a1)} Z" fill="${i<k?color:'#fff'}" stroke="#1F2430" stroke-width="3"/>`;
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">${p}</svg>`;
+}
+function gridSVG(filled,color){
+  color=color||'#4BA3E3'; let c='';
+  for(let i=0;i<100;i++){const x=(i%10)*9+5,y=Math.floor(i/10)*9+5;
+    c+=`<rect x="${x}" y="${y}" width="8" height="8" fill="${i<filled?color:'#fff'}" stroke="#1F2430" stroke-width="1"/>`;}
+  return `<svg width="112" height="112" viewBox="0 0 100 100">${c}</svg>`;
+}
+function numLineSVG(mark,max){
+  const w=280, pad=24, x=pad+(mark/max)*(w-pad*2);
+  let ticks=''; const steps=10;
+  for(let i=0;i<=steps;i++){const tx=pad+(i/steps)*(w-pad*2), maj=i%5===0;
+    ticks+=`<line x1="${tx}" y1="46" x2="${tx}" y2="${maj?60:54}" stroke="#1F2430" stroke-width="2.5"/>`;
+    if(maj) ticks+=`<text x="${tx}" y="76" text-anchor="middle" font-size="11" font-weight="800" font-family="sans-serif">${Math.round(i*max/steps).toLocaleString('ms-MY')}</text>`;}
+  return `<svg width="${w}" height="92" viewBox="0 0 ${w} 92">
+    <line x1="${pad}" y1="46" x2="${w-pad}" y2="46" stroke="#1F2430" stroke-width="3.5"/>${ticks}
+    <text x="${x}" y="22" text-anchor="middle" font-size="13" font-weight="900" font-family="sans-serif" fill="#FF4D4D">${mark.toLocaleString('ms-MY')}</text>
+    <polygon points="${x-9},26 ${x+9},26 ${x},44" fill="#FF4D4D" stroke="#1F2430" stroke-width="2"/></svg>`;
+}
+function compareBoxes(a,b){
+  const sym=a>b?'>':(a<b?'<':'=');
+  const box=(v,c)=>`<div style="border:3px solid var(--ink);border-radius:14px;background:${c};color:#fff;padding:12px 16px;font-family:var(--font-d);font-size:22px;font-weight:800;box-shadow:0 4px 0 var(--shadow);">${v.toLocaleString('ms-MY')}</div>`;
+  return `<div style="display:flex;align-items:center;gap:12px;justify-content:center;">${box(a,'#FF6B6B')}<span style="font-family:var(--font-d);font-size:38px;font-weight:900;color:#3ECF6E;">${sym}</span>${box(b,'#4BA3E3')}</div>`;
+}
+function arraySVG(rows,cols,color){
+  let dots=''; const r=8, gap=22;
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)
+    dots+=`<circle cx="${20+x*gap}" cy="${20+y*gap}" r="${r}" fill="${color}" stroke="#1F2430" stroke-width="2"/>`;
+  return `<svg width="${20+cols*gap+6}" height="${20+rows*gap+6}" viewBox="0 0 ${20+cols*gap+6} ${20+rows*gap+6}">${dots}</svg>`;
+}
+function fractionSetSVG(total,red){
+  let dots=''; const perRow=5, sz=24;
+  for(let i=0;i<total;i++){const x=15+(i%perRow)*sz, y=15+Math.floor(i/perRow)*sz;
+    dots+=`<circle cx="${x}" cy="${y}" r="9" fill="${i<red?'#FF4D4D':'#E3E8F0'}" stroke="#1F2430" stroke-width="2.5"/>`;}
+  const h=Math.ceil(total/perRow)*sz+8;
+  return `<svg width="${perRow*sz+15}" height="${h}" viewBox="0 0 ${perRow*sz+15} ${h}">${dots}</svg>`;
+}
+function senCoinSVG(v,c){
+  return `<svg width="58" height="58" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="${c}" stroke="#1F2430" stroke-width="3"/><circle cx="30" cy="30" r="21" fill="none" stroke="#1F2430" stroke-width="1.5" stroke-dasharray="3 2"/><text x="30" y="32" text-anchor="middle" font-size="15" font-weight="900" font-family="sans-serif" fill="#1F2430">${v}</text><text x="30" y="45" text-anchor="middle" font-size="7" font-weight="800" font-family="sans-serif" fill="#1F2430">SEN</text></svg>`;
+}
+function amPmSVG(){
+  const rays=[...Array(8).keys()].map(i=>{const a=i*Math.PI/4;return `<line x1="${45+22*Math.cos(a)}" y1="${45+22*Math.sin(a)}" x2="${45+28*Math.cos(a)}" y2="${45+28*Math.sin(a)}" stroke="#1F2430" stroke-width="2.5" stroke-linecap="round"/>`;}).join('');
+  return `<svg width="200" height="98" viewBox="0 0 200 98"><rect x="4" y="4" width="92" height="90" rx="10" fill="#FFE066" stroke="#1F2430" stroke-width="3"/><circle cx="45" cy="45" r="16" fill="#FFB800" stroke="#1F2430" stroke-width="2.5"/>${rays}<text x="50" y="86" text-anchor="middle" font-family="Baloo 2" font-size="16" font-weight="900" fill="#1F2430">AM</text><rect x="104" y="4" width="92" height="90" rx="10" fill="#3D5AA6" stroke="#1F2430" stroke-width="3"/><path d="M 150,32 A 16,16 0 1 0 166,48 A 11,11 0 0 1 150,32" fill="#FFF" stroke="#1F2430" stroke-width="2.5"/><circle cx="125" cy="30" r="1.5" fill="#FFF"/><circle cx="115" cy="55" r="1.2" fill="#FFF"/><circle cx="180" cy="60" r="1.5" fill="#FFF"/><text x="150" y="86" text-anchor="middle" font-family="Baloo 2" font-size="16" font-weight="900" fill="#FFF">PM</text></svg>`;
+}
+function digitalClock(h,m){
+  return `<div style="background:#1F2430;color:#FF4D4D;padding:12px 24px;border-radius:14px;border:3px solid var(--ink);box-shadow:0 4px 0 var(--shadow);font-family:'Courier New',monospace;font-size:38px;font-weight:800;letter-spacing:4px;display:inline-block;">${h}:${String(m).padStart(2,'0')}</div>`;
+}
+function tallyMarksSVG(n){
+  let m=''; const gw=44, gap=16, groups=Math.ceil(n/5);
+  for(let g=0;g<groups;g++){const inG=Math.min(5,n-g*5), gx=10+g*(gw+gap);
+    for(let i=0;i<Math.min(4,inG);i++) m+=`<line x1="${gx+i*10}" y1="8" x2="${gx+i*10}" y2="44" stroke="#1F2430" stroke-width="3.2" stroke-linecap="round"/>`;
+    if(inG===5) m+=`<line x1="${gx-4}" y1="44" x2="${gx+38}" y2="8" stroke="#FF4D4D" stroke-width="3.5" stroke-linecap="round"/>`;
+  }
+  return `<svg width="${groups*(gw+gap)+10}" height="52" viewBox="0 0 ${groups*(gw+gap)+10} 52">${m}</svg>`;
+}
+function cubeFEVSVG(){
+  const v='<circle r="4.5" fill="#FF4D4D" stroke="#1F2430" stroke-width="1.5"/>';
+  return `<svg width="140" height="120" viewBox="0 0 140 120"><polygon points="24,44 74,44 74,94 24,94" fill="#BEE3FF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="24,44 44,24 94,24 74,44" fill="#8FD3FF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="74,44 94,24 94,74 74,94" fill="#6FBBF0" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><g>${[[24,44],[74,44],[74,94],[24,94],[44,24],[94,24],[94,74]].map(([x,y])=>`<g transform="translate(${x},${y})">${v}</g>`).join('')}</g><text x="110" y="55" font-size="12" font-weight="900" font-family="sans-serif" fill="#FF4D4D">V</text></svg>`;
+}
+function rightAngleSVG(){
+  return `<svg width="130" height="100" viewBox="0 0 130 100"><line x1="25" y1="85" x2="25" y2="20" stroke="#1F2430" stroke-width="4.5" stroke-linecap="round"/><line x1="25" y1="85" x2="105" y2="85" stroke="#1F2430" stroke-width="4.5" stroke-linecap="round"/><rect x="26" y="72" width="13" height="13" fill="none" stroke="#FF4D4D" stroke-width="2.8"/><text x="70" y="55" font-family="Baloo 2" font-size="18" font-weight="900" fill="#3ECF6E">90°</text></svg>`;
+}
+const S3D={
+ kubus:`<svg width="62" height="62" viewBox="0 0 64 64"><polygon points="14,22 42,22 42,50 14,50" fill="#BEE3FF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="14,22 26,10 54,10 42,22" fill="#8FD3FF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="42,22 54,10 54,38 42,50" fill="#6FBBF0" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/></svg>`,
+ kuboid:`<svg width="72" height="62" viewBox="0 0 76 64"><polygon points="8,26 48,26 48,50 8,50" fill="#C9F2CF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="8,26 22,12 62,12 48,26" fill="#9FE3A9" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="48,26 62,12 62,36 48,50" fill="#7BD489" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/></svg>`,
+ prisma3:`<svg width="70" height="62" viewBox="0 0 72 64"><polygon points="10,52 38,52 24,20" fill="#FFD08A" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="38,52 62,44 48,14 24,20" fill="#FFE0B2" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><line x1="24" y1="20" x2="48" y2="14" stroke="#1F2430" stroke-width="3"/></svg>`,
+ sfera:`<svg width="62" height="62" viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="#FFC1D9" stroke="#1F2430" stroke-width="3"/><ellipse cx="32" cy="32" rx="22" ry="7" fill="none" stroke="#1F2430" stroke-width="2" stroke-dasharray="4 3"/></svg>`,
+ kon:`<svg width="62" height="62" viewBox="0 0 64 64"><polygon points="14,46 32,10 50,46" fill="#D9C2FF" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><ellipse cx="32" cy="46" rx="18" ry="7" fill="#C4A5FF" stroke="#1F2430" stroke-width="3"/></svg>`,
+ piramid:`<svg width="62" height="62" viewBox="0 0 64 64"><polygon points="10,50 32,12 44,50" fill="#FFF1A6" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/><polygon points="44,50 32,12 56,42" fill="#FFE066" stroke="#1F2430" stroke-width="3" stroke-linejoin="round"/></svg>`
+};
+function symSVG(){
+  return `<svg width="110" height="110" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" fill="#BEE3FF" stroke="#1F2430" stroke-width="4"/><line x1="50" y1="10" x2="50" y2="90" stroke="#FF4D4D" stroke-width="2.5" stroke-dasharray="6 4"/><line x1="10" y1="50" x2="90" y2="50" stroke="#FF4D4D" stroke-width="2.5" stroke-dasharray="6 4"/><line x1="14" y1="14" x2="86" y2="86" stroke="#FF4D4D" stroke-width="2.5" stroke-dasharray="6 4"/><line x1="86" y1="14" x2="14" y2="86" stroke="#FF4D4D" stroke-width="2.5" stroke-dasharray="6 4"/></svg>`;
+}
+function scaleSVG(){
+  return `<svg width="190" height="110" viewBox="0 0 190 110"><line x1="30" y1="34" x2="160" y2="34" stroke="#1F2430" stroke-width="5" stroke-linecap="round"/><polygon points="95,34 82,96 108,96" fill="#8A5A33" stroke="#1F2430" stroke-width="3"/><line x1="30" y1="34" x2="30" y2="52" stroke="#1F2430" stroke-width="3"/><line x1="160" y1="34" x2="160" y2="52" stroke="#1F2430" stroke-width="3"/><path d="M10,52 Q30,74 50,52 Z" fill="#FFD34D" stroke="#1F2430" stroke-width="3"/><path d="M140,52 Q160,74 180,52 Z" fill="#FFD34D" stroke="#1F2430" stroke-width="3"/><text x="30" y="66" text-anchor="middle" font-size="11" font-weight="800" font-family="sans-serif">1 kg</text><text x="160" y="66" text-anchor="middle" font-size="10" font-weight="800" font-family="sans-serif">1000 g</text><text x="95" y="24" text-anchor="middle" font-size="16" font-weight="900" font-family="sans-serif">=</text></svg>`;
+}
+function jugSVG(){
+  return `<svg width="100" height="120" viewBox="0 0 100 120"><rect x="22" y="14" width="56" height="94" rx="6" fill="#fff" stroke="#1F2430" stroke-width="4"/><rect x="26" y="58" width="48" height="46" rx="4" fill="#8FD3FF"/><line x1="26" y1="58" x2="46" y2="58" stroke="#1F2430" stroke-width="2.5"/><text x="50" y="62" font-size="10" font-weight="800" font-family="sans-serif">500 ml</text><line x1="26" y1="26" x2="46" y2="26" stroke="#1F2430" stroke-width="2.5"/><text x="50" y="30" font-size="10" font-weight="800" font-family="sans-serif">1000 ml</text></svg>`;
+}
+function rulerSVG(){
+  let ticks='';
+  for(let i=0;i<=10;i++){const x=15+i*20;
+    ticks+=`<line x1="${x}" y1="20" x2="${x}" y2="${i%5===0?38:30}" stroke="#1F2430" stroke-width="2.5"/>`;
+    if(i%5===0) ticks+=`<text x="${x}" y="52" text-anchor="middle" font-size="10" font-weight="800" font-family="sans-serif">${i*10}</text>`;}
+  return `<svg width="240" height="60" viewBox="0 0 230 60"><rect x="5" y="12" width="220" height="34" rx="6" fill="#FFF1A6" stroke="#1F2430" stroke-width="3.5"/>${ticks}<text x="225" y="52" text-anchor="end" font-size="10" font-weight="800" font-family="sans-serif">cm</text></svg>`;
+}
+function miniBars(labels,vals,cols){
+  const mx=Math.max(...vals);
+  return `<div style="display:flex; gap:14px; align-items:flex-end; height:100px;">${vals.map((v,i)=>
+    `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+      <div style="font-size:11px;font-weight:900;">${v}</div>
+      <div style="width:34px;height:${Math.round(v/mx*70)}px;background:${cols[i]};border:3px solid var(--ink);border-radius:7px 7px 0 0;"></div>
+      <div style="font-size:11.5px;font-weight:900;margin-top:4px;">${labels[i]}</div></div>`).join('')}</div>`;
+}
+function noteMY(v,c){return `<div class="note-my" style="background:${c};">RM${v}</div>`;}
+function objRefRow(emoji,name,size){
+  return `<div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:2px dashed #E3E8F0;font-family:var(--font-d);font-weight:800;"><span style="font-size:22px;">${emoji}</span><span style="flex:1;">${name}</span><span class="chip green" style="font-size:12px;">${size}</span></div>`;
+}
+function tableSVG(){
+  return `<div style="width:100%;max-width:280px;"><div style="display:grid;grid-template-columns:1.2fr 1fr;gap:0;border:3px solid var(--ink);border-radius:10px;overflow:hidden;font-family:var(--font-d);">
+    <div style="background:#4BA3E3;color:#fff;padding:8px;font-weight:800;text-align:center;font-size:14px;">${tr('Buah','Fruit')}</div>
+    <div style="background:#4BA3E3;color:#fff;padding:8px;font-weight:800;text-align:center;font-size:14px;border-left:3px solid var(--ink);">${tr('Bilangan','Count')}</div>
+    <div style="padding:6px 10px;font-weight:800;border-top:2.5px solid var(--ink);">🍎 ${tr('Epal','Apple')}</div><div style="padding:6px 10px;font-weight:800;text-align:center;border-left:3px solid var(--ink);border-top:2.5px solid var(--ink);color:#FF4D4D;">6</div>
+    <div style="padding:6px 10px;font-weight:800;border-top:2px dashed #ccc;">🍊 ${tr('Oren','Orange')}</div><div style="padding:6px 10px;font-weight:800;text-align:center;border-left:3px solid var(--ink);border-top:2px dashed #ccc;">3</div>
+    <div style="padding:6px 10px;font-weight:800;border-top:2px dashed #ccc;">🍌 ${tr('Pisang','Banana')}</div><div style="padding:6px 10px;font-weight:800;text-align:center;border-left:3px solid var(--ink);border-top:2px dashed #ccc;">4</div>
+  </div></div>`;
+}
+
+/* ================= INFOGRAPHIC LESSONS (BILINGUAL, ARRAY) ================= */
+const IG={
+ t1(){ const cols=['#9B5DE5','#FF6B6B','#FFB800','#3ECF6E'];
+  return [
+    igCard('#4BA3E3',tr('🏠 Nilai Tempat & Nilai Digit','🏠 Place Value & Digit Value'),
+      `<div class="pv-row">${['4','5','2','7'].map((d,i)=>`<div class="pv-col"><div class="pv-digit" style="background:${cols[i]};">${d}</div><div class="pv-lab">${[tr('Ribu','Thousands'),tr('Ratus','Hundreds'),tr('Puluh','Tens'),tr('Sa','Ones')][i]}</div></div>`).join('')}</div>
+       ${chips([tr('4 ribu = 4,000','4 thousands = 4,000'),tr('5 ratus = 500','5 hundreds = 500'),tr('2 puluh = 20','2 tens = 20'),tr('7 sa = 7','7 ones = 7')])}
+       ${cap(tr('Tempat digit menentukan NILAINYA!','The digit\'s PLACE decides its VALUE!'))}`),
+    igCard('#3ECF6E',tr('🗣️ Membaca & Menulis Nombor','🗣️ Reading & Writing Numbers'),
+      `${beq('3,208')}${flow([{t:'⬇️',op:1}])}
+       ${chips(S.lang==='en'?['three thousand','two hundred','eight']:['tiga ribu','dua ratus','lapan'],'green')}
+       ${cap(tr('Baca dari RIBU dahulu, satu-satu ke kanan','Read from the THOUSANDS first, then move right'))}`),
+    igCard('#00A2FF',tr('📏 Garisan Nombor','📏 Number Line'),
+      `${numLineSVG(6500,10000)}
+       ${chips([tr('Kiri = kecil, kanan = besar','Left = small, right = big'),tr('Guna untuk cari kedudukan','Use it to find position')],'blue')}
+       ${cap(tr('Garisan nombor bantu kamu "nampak" nombor','A number line helps you SEE where numbers sit'))}`),
+    igCard('#FF6B6B',tr('⚖️ Bandingkan Nombor','⚖️ Compare Numbers'),
+      `${compareBoxes(3450,3540)}
+       ${chips([tr('< = kurang daripada','< = less than'),tr('> = lebih daripada','> = greater than'),tr('= sama','= equal to')],'pink')}
+       ${cap(tr('Bandingkan RIBU dulu — kalau sama, tengok RATUS','Compare THOUSANDS first — if equal, look at HUNDREDS'))}`),
+    igCard('#FF8C42',tr('⛰️ Membundar Nombor','⛰️ Rounding Numbers'),
+      `${chips(['0','1','2','3','4',tr('= TURUN ⬇️','= ROUND DOWN ⬇️')],'blue')}
+       ${chips(['5','6','7','8','9',tr('= NAIK ⬆️','= ROUND UP ⬆️')],'pink')}
+       ${flow([{t:'2,34<b style="color:#FF4D4D;">7</b>'},{t:tr('puluh terdekat','nearest ten'),op:1},{t:'2,350',c:'#3ECF6E'}])}
+       ${cap(tr('Lihat digit KANAN tempat yang dibundar','Look at the digit to the RIGHT of the rounding place'))}`),
+    igCard('#9B5DE5',tr('🚂 Pola Nombor','🚂 Number Patterns'),
+      `${flow([{t:'1,200'},{t:'+200',op:1},{t:'1,400'},{t:'+200',op:1},{t:'1,600'},{t:'+200',op:1},{t:'1,800',c:'#9B5DE5'}])}
+       ${cap(tr('Cari BEZA antara nombor — itu kunci polanya!','Find the DIFFERENCE — that\'s the pattern key!'))}`)
+  ];
+ },
+ t2(){
+  return [
+    igCard('#FF6B6B',tr('🍎 Darab = Tambah Berulang','🍎 Multiply = Repeated Addition'),
+      `<div class="emoji-line">🍎🍎🍎🍎<br>🍎🍎🍎🍎<br>🍎🍎🍎🍎</div>
+       ${beq('3 × 4 = 4 + 4 + 4 = 12')}
+       ${cap(tr('3 kumpulan, setiap satu 4 epal','3 groups with 4 apples each'))}`),
+    igCard('#FFB800',tr('⚫ Susunan Array','⚫ Array Arrangement'),
+      `${arraySVG(4,5,'#FF6B6B')}
+       ${beq('4 × 5 = 20')}
+       ${chips([tr('4 baris','4 rows'),tr('5 lajur','5 columns')],'gold')}
+       ${cap(tr('Darab boleh dilihat sebagai baris × lajur','Multiplication = rows × columns'))}`),
+    igCard('#00A2FF',tr('0️⃣ Darab 10, 100, 1000','0️⃣ Multiply by 10, 100, 1000'),
+      `${flow([{t:'25'},{t:'× 10',op:1},{t:'250'},{t:'× 10',op:1},{t:'2,500',c:'#FFB800'}])}
+       ${chips([tr('× 10 → tambah 1 sifar','× 10 → add 1 zero'),tr('× 100 → tambah 2 sifar','× 100 → add 2 zeros'),tr('× 1000 → tambah 3 sifar','× 1000 → add 3 zeros')],'blue')}`),
+    igCard('#3ECF6E',tr('🧱 Tambah Menegak','🧱 Column Addition'),
+      `<div style="font-family:monospace;font-size:22px;line-height:1.5;padding:14px 24px;background:#F5F7FF;border:3px solid var(--ink);border-radius:12px;font-weight:800;letter-spacing:2px;">
+         <div>&nbsp;&nbsp;1&nbsp;2&nbsp;5&nbsp;6</div>
+         <div>+&nbsp;2&nbsp;1&nbsp;3&nbsp;8</div>
+         <div style="border-top:3px solid var(--ink);padding-top:4px;color:#3ECF6E;">&nbsp;&nbsp;3&nbsp;3&nbsp;9&nbsp;4</div>
+       </div>
+       ${chips([tr('Susun ikut tempat','Line up by place'),tr('Mula dari SA','Start from ONES')],'green')}`),
+    igCard('#FFB800',tr('🍪 Bahagi = Agih Sama Rata','🍪 Divide = Share Equally'),
+      `<div class="emoji-line">🍽️ 🍪🍪🍪🍪<br>🍽️ 🍪🍪🍪🍪<br>🍽️ 🍪🍪🍪🍪</div>
+       ${beq('12 ÷ 3 = 4')}
+       ${cap(tr('12 biskut diagih ke 3 pinggan — 4 setiap pinggan','12 cookies shared onto 3 plates — 4 per plate'))}`),
+    igCard('#9B5DE5',tr('🕵️ Cari Anu (Nombor Misteri)','🕵️ Find the Unknown'),
+      `${beq('8 + ⬜ = 15')}
+       ${flow([{t:'⬜ = 15 − 8',op:1},{t:'⬜ = 7',c:'#9B5DE5'}])}
+       ${cap(tr('Guna operasi SONGSANG: + jadi −, × jadi ÷','Use the INVERSE: + becomes −, × becomes ÷'))}`)
+  ];
+ },
+ t3(){
+  return [
+    igCard('#FF6B6B',tr('🍕 Pecahan Wajar','🍕 Proper Fractions'),
+      `${pizzaSVG(4,3)}${beq('3/4')}
+       ${chips([tr('ATAS = pengangka (3 dimakan)','TOP = numerator (3 eaten)'),tr('BAWAH = penyebut (4 semua)','BOTTOM = denominator (4 total)')],'pink')}`),
+    igCard('#FFB800',tr('🟰 Pecahan Setara','🟰 Equivalent Fractions'),
+      `<div style="display:flex; gap:14px; align-items:center;">${pizzaSVG(2,1,82,'#FFD34D')}<span class="big-eq">=</span>${pizzaSVG(4,2,82,'#FFD34D')}</div>
+       ${beq('1/2 = 2/4')}
+       ${cap(tr('Nilai SAMA walaupun rupa berbeza!','SAME value even if they look different!'))}`),
+    igCard('#00A2FF',tr('⚖️ Bandingkan Pecahan','⚖️ Compare Fractions'),
+      `<div style="display:flex;gap:14px;align-items:center;">${pizzaSVG(4,3,80,'#FF6B6B')}<span style="font-family:var(--font-d);font-size:32px;font-weight:900;color:#3ECF6E;">></span>${pizzaSVG(4,2,80,'#FF6B6B')}</div>
+       ${beq('3/4 > 2/4')}
+       ${cap(tr('Penyebut SAMA → pengangka besar = lebih besar','Same denominator → bigger numerator wins'))}`),
+    igCard('#9B5DE5',tr('🔴 Pecahan daripada Set','🔴 Fraction of a Set'),
+      `${fractionSetSVG(10,3)}
+       ${beq('3/10 merah')}
+       ${cap(tr('3 daripada 10 bola berwarna merah','3 out of 10 balls are red'))}`),
+    igCard('#4BA3E3',tr('🔢 Perpuluhan','🔢 Decimals'),
+      `${gridSVG(25)}${beq('0.25 = 25/100')}
+       ${chips([tr('tempat ke-1 = persepuluh','1st place = tenths'),tr('tempat ke-2 = perseratus','2nd place = hundredths')],'blue')}`),
+    igCard('#3ECF6E',tr('💯 Peratus (%)','💯 Percentages (%)'),
+      `${gridSVG(50,'#3ECF6E')}${beq('50/100 = 50%')}
+       ${cap(tr('Peratus bermaksud "DARIPADA 100"','Percent means "OUT OF 100"'))}`)
+  ];
+ },
+ t4(){
+  return [
+    igCard('#3ECF6E',tr('💵 Wang Kertas Malaysia','💵 Malaysian Notes'),
+      `<div class="chips">${noteMY(1,'#2E6FD8')}${noteMY(5,'#3E9B3E')}${noteMY(10,'#D34B2C')}${noteMY(50,'#0FA3A3')}${noteMY(100,'#7A4FBF')}</div>
+       ${cap('RM = Ringgit Malaysia | 100 sen = RM1')}`),
+    igCard('#FFB800',tr('🪙 Duit Syiling Sen','🪙 Sen Coins'),
+      `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">${senCoinSVG(5,'#FFC93C')}${senCoinSVG(10,'#FFD34D')}${senCoinSVG(20,'#F5B041')}${senCoinSVG(50,'#E5B84D')}</div>
+       ${chips([tr('5 syiling 20 sen = RM1','5 × 20 sen = RM1'),tr('10 syiling 10 sen = RM1','10 × 10 sen = RM1')],'gold')}`),
+    igCard('#4BA3E3',tr('🧮 Operasi Wang','🧮 Money Operations'),
+      `${flow([{t:'RM12.50'},{t:'+',op:1},{t:'RM3.80'},{t:'=',op:1},{t:'RM16.30',c:'#4BA3E3'}])}
+       ${chips([tr('Jaga titik perpuluhan!','Watch the decimal point!'),tr('Sen mesti 2 digit','Sen must be 2 digits')],'blue')}`),
+    igCard('#FF6B6B',tr('💸 Kira Baki','💸 Calculating Change'),
+      `${flow([{t:tr('Bayar RM20','Pay RM20')},{t:'−',op:1},{t:tr('Beli RM13','Buy RM13'),c:'#FF6B6B'},{t:'=',op:1},{t:tr('Baki RM7','Change RM7'),c:'#3ECF6E'}])}
+       ${cap(tr('Baki = wang bayar − harga barang','Change = money paid − price'))}`),
+    igCard('#FF8C42',tr('🐖 Bijak Simpan','🐖 Smart Saving'),
+      `${flow([{t:tr('Dapat RM10','Get RM10')},{t:'➜',op:1},{t:tr('🐖 Simpan RM4','🐖 Save RM4'),c:'#3ECF6E'},{t:'+',op:1},{t:tr('🛍️ Belanja RM6','🛍️ Spend RM6')}])}
+       ${cap(tr('SIMPAN dulu, belanja kemudian — tabiat bijak!','SAVE first, spend later — smart habit!'))}`),
+    igCard('#9B5DE5',tr('🌏 Mata Wang ASEAN','🌏 ASEAN Currencies'),
+      `${chips([tr('🇲🇾 Malaysia = Ringgit','🇲🇾 Malaysia = Ringgit'),tr('🇹🇭 Thailand = Baht','🇹🇭 Thailand = Baht'),tr('🇮🇩 Indonesia = Rupiah','🇮🇩 Indonesia = Rupiah'),tr('🇸🇬 Singapura = Dolar','🇸🇬 Singapore = Dollar'),tr('🇵🇭 Filipina = Peso','🇵🇭 Philippines = Peso'),tr('🇻🇳 Vietnam = Dong','🇻🇳 Vietnam = Dong')],'purp')}
+       ${cap(tr('Setiap negara ada mata wang sendiri','Every country has its own currency'))}`)
+  ];
+ },
+ t5(){
+  return [
+    igCard('#4BA3E3',tr('🕐 Jam Analog','🕐 Analog Clock'),
+      `${clockSVG(3,30)}${beq('3:30')}
+       ${chips([tr('Jarum PENDEK = jam','SHORT hand = hours'),tr('Jarum PANJANG = minit','LONG hand = minutes'),tr('1 nombor = 5 minit','1 number = 5 minutes')],'blue')}`),
+    igCard('#FF4D4D',tr('🔢 Jam Digital','🔢 Digital Clock'),
+      `${digitalClock(3,30)}
+       ${chips([tr('Jam : Minit','Hours : Minutes'),tr('3:30 = pukul tiga setengah','3:30 = half past three')],'pink')}
+       ${cap(tr('Bacaan lebih pantas — tapi tak ada jarum!','Faster to read — but no hands!'))}`),
+    igCard('#FFB800',tr('☀️ AM vs PM 🌙','☀️ AM vs PM 🌙'),
+      `${amPmSVG()}
+       ${chips([tr('AM = 12:00 malam hingga 11:59 pagi','AM = 12:00 midnight to 11:59 am'),tr('PM = 12:00 tengah hari hingga 11:59 malam','PM = 12:00 noon to 11:59 pm')],'gold')}`),
+    igCard('#9B5DE5',tr('🪜 Tangga Masa','🪜 Time Ladder'),
+      `${flow([{t:tr('1 minit','1 min')},{t:'=',op:1},{t:tr('60 saat','60 sec')}])}
+       ${flow([{t:tr('1 jam','1 hour')},{t:'=',op:1},{t:tr('60 minit','60 min')}])}
+       ${flow([{t:tr('1 hari','1 day')},{t:'=',op:1},{t:tr('24 jam','24 hours')}])}
+       ${flow([{t:tr('1 minggu','1 week')},{t:'=',op:1},{t:tr('7 hari','7 days')}])}
+       ${flow([{t:tr('1 tahun','1 year')},{t:'=',op:1},{t:tr('12 bulan','12 months')}])}`),
+    igCard('#FF8C42',tr('⏱️ Operasi Masa','⏱️ Time Operations'),
+      `${flow([{t:'45 min'},{t:'+',op:1},{t:'30 min'},{t:'=',op:1},{t:'75 min'},{t:'➜',op:1},{t:tr('1 jam 15 min','1 hr 15 min'),c:'#FF8C42'}])}
+       ${cap(tr('Bila cukup 60 minit, tukar jadi 1 jam!','When you reach 60 min, trade for 1 hour!'))}`),
+    igCard('#3ECF6E',tr('📅 Kalendar','📅 Calendar'),
+      `${chips([tr('31 hari: Jan, Mac, Mei, Jul, Ogo, Okt, Dis','31 days: Jan, Mar, May, Jul, Aug, Oct, Dec')],'green')}
+       ${chips([tr('30 hari: Apr, Jun, Sep, Nov','30 days: Apr, Jun, Sep, Nov')],'blue')}
+       ${chips([tr('Feb: 28 hari (29 tahun lompat)','Feb: 28 (29 in leap year)')],'pink')}`)
+  ];
+ },
+ t6(){
+  return [
+    igCard('#FFB800',tr('📏 Panjang (m & cm)','📏 Length (m & cm)'),
+      `${rulerSVG()}${beq('1 m = 100 cm')}
+       ${chips([tr('Pendek → guna cm','Short → use cm'),tr('Panjang → guna m','Long → use m')],'gold')}`),
+    igCard('#00A2FF',tr('📐 Objek di Sekeliling','📐 Everyday Objects'),
+      `<div style="width:100%; max-width:280px;">
+        ${objRefRow('📎',tr('Klip kertas','Paper clip'),tr('≈ 3 cm','≈ 3 cm'))}
+        ${objRefRow('✏️',tr('Pensel','Pencil'),tr('≈ 15 cm','≈ 15 cm'))}
+        ${objRefRow('📕',tr('Buku','Book'),tr('≈ 30 cm','≈ 30 cm'))}
+        ${objRefRow('🚪',tr('Pintu','Door'),tr('≈ 2 m','≈ 2 m'))}
+       </div>
+       ${cap(tr('Bandingkan dengan barang yang kamu tahu!','Compare to things you already know!'))}`),
+    igCard('#FF6B6B',tr('⚖️ Jisim (kg & g)','⚖️ Mass (kg & g)'),
+      `${scaleSVG()}${beq('1 kg = 1000 g')}
+       ${chips([tr('Ringan → guna g','Light → use g'),tr('Berat → guna kg','Heavy → use kg')],'pink')}`),
+    igCard('#4BA3E3',tr('🥤 Isi Padu (l & ml)','🥤 Volume (l & ml)'),
+      `${jugSVG()}${beq('1 ℓ = 1000 ml')}
+       ${chips([tr('Sikit → guna ml','A little → use ml'),tr('Banyak → guna liter','A lot → use litres')],'blue')}`),
+    igCard('#9B5DE5',tr('🎯 Pilih Unit yang Betul','🎯 Choose the Right Unit'),
+      `${chips([tr('🐘 Gajah → kg','🐘 Elephant → kg'),tr('🐜 Semut → g','🐜 Ant → g')],'purp')}
+       ${chips([tr('🏊 Kolam → liter','🏊 Pool → litres'),tr('💊 Ubat → ml','💊 Medicine → ml')],'purp')}
+       ${chips([tr('🏫 Bangunan → m','🏫 Building → m'),tr('📏 Buku → cm','📏 Book → cm')],'purp')}`),
+    igCard('#3ECF6E',tr('🧮 Operasi Unit','🧮 Unit Operations'),
+      `${flow([{t:'250 g'},{t:'× 4',op:1},{t:'1000 g'},{t:'=',op:1},{t:'1 kg',c:'#3ECF6E'}])}
+       ${cap(tr('Pastikan UNIT SAMA sebelum kira!','Make UNITS MATCH before calculating!'))}`)
+  ];
+ },
+ t7(){
+  return [
+    igCard('#3ECF6E',tr('✅ Ini PRISMA','✅ These ARE Prisms'),
+      `<div class="gal">
+        <div class="gal-item">${S3D.kubus}${tr('Kubus','Cube')}</div>
+        <div class="gal-item">${S3D.kuboid}${tr('Kuboid','Cuboid')}</div>
+        <div class="gal-item">${S3D.prisma3}${tr('Prisma segi tiga','Triangular prism')}</div></div>
+       ${cap(tr('Prisma ada DUA tapak SAMA & SELARI','A prism has TWO bases SAME & PARALLEL'))}`),
+    igCard('#FF6B6B',tr('❌ Ini BUKAN Prisma','❌ NOT Prisms'),
+      `<div class="gal">
+        <div class="gal-item">${S3D.sfera}${tr('Sfera','Sphere')}</div>
+        <div class="gal-item">${S3D.kon}${tr('Kon','Cone')}</div>
+        <div class="gal-item">${S3D.piramid}${tr('Piramid','Pyramid')}</div></div>
+       ${cap(tr('Tiada dua tapak sama — bukan prisma!','No two identical bases — not a prism!'))}`),
+    igCard('#00A2FF',tr('🎲 Sisi, Tepi, Bucu','🎲 Faces, Edges, Vertices'),
+      `${cubeFEVSVG()}
+       ${chips([tr('Kubus: 6 sisi','Cube: 6 faces'),tr('12 tepi','12 edges'),tr('8 bucu','8 vertices')],'blue')}
+       ${cap(tr('Bucu = titik penjuru (bulatan merah)','Vertex = corner point (red dots)'))}`),
+    igCard('#4BA3E3',tr('🔷 Poligon Sekata','🔷 Regular Polygons'),
+      `<div class="gal g4">
+        <div class="gal-item">${polySVG(5,60)}Pentagon<br>${tr('5 sisi','5 sides')}</div>
+        <div class="gal-item">${polySVG(6,60)}${tr('Heksagon','Hexagon')}<br>${tr('6 sisi','6 sides')}</div>
+        <div class="gal-item">${polySVG(7,60)}Heptagon<br>${tr('7 sisi','7 sides')}</div>
+        <div class="gal-item">${polySVG(8,60)}${tr('Oktagon','Octagon')}<br>${tr('8 sisi','8 sides')}</div></div>
+       ${cap(tr('Sekata = semua sisi SAMA panjang','Regular = all sides SAME length'))}`),
+    igCard('#FF8C42',tr('📐 Sudut Tegak (90°)','📐 Right Angles (90°)'),
+      `${rightAngleSVG()}
+       ${chips([tr('📗 Sudut buku','📗 Corner of a book'),tr('🚪 Sudut pintu','🚪 Corner of a door'),tr('📱 Sudut telefon','📱 Corner of a phone')],'gold')}
+       ${cap(tr('Sudut tegak muncul di mana-mana!','Right angles are everywhere!'))}`),
+    igCard('#9B5DE5',tr('🪞 Paksi Simetri','🪞 Lines of Symmetry'),
+      `${symSVG()}
+       ${chips([tr('Segi empat sama = 4 paksi','Square = 4 lines'),tr('Segi tiga sama sisi = 3','Equilateral triangle = 3'),tr('Bulatan = tak terhingga!','Circle = infinite!')],'purp')}`)
+  ];
+ },
+ t8(){
+  return [
+    igCard('#FF4D4D',tr('✋ Kutip Data','✋ Collecting Data'),
+      `${flow([{t:tr('❓ Tanya soalan','❓ Ask a question')},{t:'➜',op:1},{t:tr('👥 Kumpul jawapan','👥 Gather answers')},{t:'➜',op:1},{t:tr('📊 Susun data','📊 Organise')}])}
+       ${cap(tr('Data = maklumat yang kita kumpul','Data = information we collect'))}`),
+    igCard('#00A2FF',tr('✏️ Undi Turus','✏️ Tally Chart'),
+      `<div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-d);font-weight:800;">
+        <div style="display:flex;gap:10px;align-items:center;">🍎<span style="min-width:70px;">${tr('Epal','Apple')}</span>${tallyMarksSVG(6)}<span style="color:#FF4D4D;">= 6</span></div>
+        <div style="display:flex;gap:10px;align-items:center;">🍊<span style="min-width:70px;">${tr('Oren','Orange')}</span>${tallyMarksSVG(3)}<span style="color:#FF4D4D;">= 3</span></div>
+       </div>
+       ${cap(tr('Setiap 5 = 4 garis + 1 pelintang','Every 5 = 4 lines + 1 diagonal cross'))}`),
+    igCard('#3ECF6E',tr('📋 Membaca Jadual','📋 Reading a Table'),
+      `${tableSVG()}
+       ${chips([tr('Baris = jenis buah','Rows = fruit type'),tr('Lajur = bilangan','Columns = count')],'green')}`),
+    igCard('#FFB800',tr('⚽ Piktograf','⚽ Pictograph'),
+      `<div class="emoji-line" style="font-size:19px; text-align:left;">${tr('Bola','Football')} &nbsp;&nbsp;⚽⚽⚽<br>Badminton &nbsp;&nbsp;⚽⚽<br>${tr('Renang','Swim')} &nbsp;&nbsp;⚽⚽⚽⚽</div>
+       ${chips([tr('1 ⚽ = 2 murid','1 ⚽ = 2 pupils'),tr('Bola: 3 × 2 = 6','Football: 3 × 2 = 6')],'gold')}
+       ${cap(tr('Semak petunjuk — 1 gambar ≠ 1 unit!','Check the key — 1 image ≠ 1 unit!'))}`),
+    igCard('#FF6B6B',tr('📊 Carta Palang','📊 Bar Chart'),
+      `${miniBars([tr('Epal','Apple'),tr('Oren','Orange'),tr('Pisang','Banana')],[6,3,4],['#FF6B6B','#FFB800','#FFE66D'])}
+       ${cap(tr('Palang TERTINGGI = paling BANYAK','TALLEST bar = MOST'))}`),
+    igCard('#9B5DE5',tr('🥧 Carta Pai','🥧 Pie Chart'),
+      `<div class="pie-demo" style="background:conic-gradient(#FF6B6B 0 50%, #FFB800 50% 75%, #4BA3E3 75% 100%);"></div>
+       ${chips([tr('🔴 Epal = 50%','🔴 Apple = 50%'),tr('🟡 Oren = 25%','🟡 Orange = 25%'),tr('🔵 Pisang = 25%','🔵 Banana = 25%')],'purp')}
+       ${cap(tr('Bahagian TERBESAR = paling popular','BIGGEST slice = most popular'))}`)
+  ];
+ }
+};
+
+/* ================= GOOGLE SHEETS SYNC (values always BM for clean analysis) ================= */
+function postToSheet(payload, cb){
+  if(!S.sheetUrl){ if(cb)cb(false); return; }
+  try{
+    fetch(S.sheetUrl,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(payload)})
+      .then(()=>{ if(cb)cb(true); })
+      .catch(()=>{ if(cb)cb(false); });
+  }catch(e){ if(cb)cb(false); }
+}
+function record(mode, topicName, score, total, durS, extra){
+  postToSheet(Object.assign({
+    tarikh:new Date().toLocaleString('ms-MY'),
+    nama:S.name, mod:mode, tajuk:topicName,
+    markah:score, jumlah:total,
+    peratus: total? Math.round(score/total*100) : '',
+    masa_saat:durS
+  }, extra||{}), (ok)=>{
+    const el=$('res-sync');
+    if(el && $('scr-result').classList.contains('active'))
+      el.textContent = ok ? tr('📊 Keputusan dihantar ke Google Sheet ✔','📊 Result sent to Google Sheet ✔')
+        : (S.sheetUrl? tr('⚠️ Tidak dapat hantar ke Sheet','⚠️ Could not send to Sheet')
+        : tr('ℹ️ Setup Google Sheet di Tetapan untuk rekod keputusan','ℹ️ Set up Google Sheets in Settings to record results'));
+  });
+}
+
+/* ================= NAV / SHARED UI ================= */
+let sd={};
+function sfClearTimer(){ if(sd&&sd.timer){ clearInterval(sd.timer); sd.timer=null; } }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('on', b.dataset.nav===id));
+  window.scrollTo({top:0});
+}
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',()=>{
+  sfClearTimer();
+  if(b.dataset.nav==='scr-game') renderLevels();
+  if(b.dataset.nav==='scr-shop') renderShop();
+  if(b.dataset.nav==='scr-home') renderHome();
+  if(b.dataset.nav==='scr-sifir') renderSifirHub();
+  show(b.dataset.nav);
+}));
+$('btn-settings').addEventListener('click',()=>{ $('set-name').value=S.name; $('set-sheet').value=S.sheetUrl; show('scr-settings'); });
+$('btn-goto-shop').addEventListener('click',()=>{ renderShop(); show('scr-shop'); });
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),1900); }
+function confetti(){
+  const cols=['#FFB800','#FF4D4D','#00A2FF','#3ECF6E','#9B5DE5'];
+  for(let i=0;i<26;i++){ const c=document.createElement('div'); c.className='confetti-piece';
+    c.style.left=Math.random()*100+'vw'; c.style.background=pick(cols);
+    c.style.animationDuration=(2+Math.random()*1.3)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),3500); }
+}
+
+/* ================= AVATAR ================= */
+function avatarHTML(){
+  const hat=S.equipped.hat?itemById(S.equipped.hat):null;
+  const tool=S.equipped.tool?itemById(S.equipped.tool):null;
+  const pet=S.equipped.pet?itemById(S.equipped.pet):null;
+  const aura=S.equipped.aura?itemById(S.equipped.aura):null;
+  return `<div class="avatar float">
+    ${aura?`<div class="av-aura" style="background:${aura.color};"></div>`:''}
+    <div class="av-part av-head"></div>
+    <div class="av-face"><div class="av-eye"></div><div class="av-eye"></div></div>
+    <div class="av-smile"></div>
+    <div class="av-part av-torso"></div>
+    <div class="av-part av-arm l"></div><div class="av-part av-arm r"></div>
+    <div class="av-part av-leg l"></div><div class="av-part av-leg r"></div>
+    ${hat?`<div class="av-hat">${hat.emoji}</div>`:''}
+    ${tool?`<div class="av-tool">${tool.emoji}</div>`:''}
+    ${pet?`<div class="av-pet">${pet.emoji}</div>`:''}
+  </div>`;
+}
+function renderAvatars(){ ['home-avatar','shop-avatar','battle-avatar'].forEach(id=>{ const el=$(id); if(el) el.innerHTML=avatarHTML(); }); }
+
+/* ================= HOME ================= */
+function badgeCount(){ return Object.values(S.badges).filter(v=>v>=7).length; }
+function renderHome(){
+  $('home-name').textContent=S.name;
+  $('hud-coins').textContent=S.coins; $('stat-coins').textContent=S.coins;
+  $('hud-badges').textContent=badgeCount(); $('stat-badges').textContent=badgeCount();
+  $('stat-lvl').textContent=S.levelsCleared;
+  renderAvatars();
+  const list=$('topic-list'); list.innerHTML='';
+  TOPICS.forEach((t,i)=>{
+    const best=S.badges[t.id]||0;
+    const btn=document.createElement('button');
+    btn.className='blok topic-card';
+    btn.innerHTML=`<div class="topic-ico" style="background:${t.col};">${t.ico}</div>
+      <div class="topic-meta"><div class="topic-name">${i+1}. ${tName(t)}</div>
+      <div class="topic-prog">${best?tr(`Markah terbaik: ${best}/10`,`Best score: ${best}/10`):tr('Belum dicuba','Not tried yet')}</div></div>
+      <div class="topic-badge">${best>=7?'🏅':(best>0?'⭐':'')}</div>`;
+    btn.addEventListener('click',()=>openLesson(t));
+    list.appendChild(btn);
+  });
+}
+
+/* ================= LESSON ================= */
+let activeTopic=null;
+function openLesson(t){
+  activeTopic=t;
+  $('lesson-title').textContent=`${t.ico} ${tName(t)}`;
+  const cards = IG[t.id]();
+  const notes = $('lesson-notes');
+  notes.innerHTML =
+    `<div class="ig-slider" id="ig-slider">${cards.map(c=>`<div class="ig-slide">${c}</div>`).join('')}</div>`+
+    `<div class="ig-dots" id="ig-dots">${cards.map((_,i)=>`<span class="ig-dot${i===0?' on':''}"></span>`).join('')}</div>`+
+    `<div class="ig-hint" id="ig-hint">${tr('👉 Leret ke kiri untuk lebih banyak','👉 Swipe left for more')}</div>`;
+  const slider = $('ig-slider');
+  const dots = notes.querySelectorAll('.ig-dot');
+  const hint = $('ig-hint');
+  let hintHidden = false;
+  slider.addEventListener('scroll', ()=>{
+    if(!hintHidden && slider.scrollLeft > 20){ hint.style.display='none'; hintHidden=true; }
+    const slideW = slider.scrollWidth / cards.length;
+    const idx = Math.max(0, Math.min(cards.length-1, Math.round(slider.scrollLeft / slideW)));
+    dots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+  });
+  show('scr-lesson');
+}
+$('btn-lesson-back').addEventListener('click',()=>{ renderHome(); show('scr-home'); });
+$('btn-start-quiz').addEventListener('click',()=>startQuiz(activeTopic));
+
+/* ================= QUESTION GENERATORS (BILINGUAL) ================= */
+function mkOpts(correct, gen){
+  const set=new Set([String(correct)]); let g=0;
+  while(set.size<4 && g<80){ g++; const w=gen(); if(w!==null && String(w)!==String(correct)) set.add(String(w)); }
+  return shuffle([...set]);
+}
+const GEN={
+ t1(){
+  const t=ri(1,5);
+  if(t===1){
+    const n=ri(1000,9999); const s=String(n);
+    const pos=ri(0,3); const digit=+s[pos]; if(digit===0) return GEN.t1();
+    const pMS=['ribu','ratus','puluh','sa'][pos], pEN=['thousands','hundreds','tens','ones'][pos];
+    const val=digit*[1000,100,10,1][pos];
+    return {text:tr(`Apakah NILAI digit ${digit} dalam ${fmt(n)}? (tempat ${pMS})`,`What is the VALUE of the digit ${digit} in ${fmt(n)}? (${pEN} place)`),
+      ans:fmt(val), opts:mkOpts(fmt(val),()=>fmt(digit*pick([1,10,100,1000])))};
+  }
+  if(t===2){
+    const n=ri(1050,9949); const p=pick([['puluh','ten',10],['ratus','hundred',100],['ribu','thousand',1000]]);
+    const ans=Math.round(n/p[2])*p[2];
+    return {text:tr(`Bundarkan ${fmt(n)} kepada ${p[0]} terdekat.`,`Round ${fmt(n)} to the nearest ${p[1]}.`),
+      ans:fmt(ans), opts:mkOpts(fmt(ans),()=>fmt(ans+pick([-2,-1,1,2])*p[2]))};
+  }
+  if(t===3){
+    const st=ri(100,900)*pick([1,2]); const d=pick([50,100,200,250,500]);
+    const seq=[st,st+d,st+2*d]; const ans=st+3*d;
+    return {text:tr(`Lengkapkan pola: ${seq.map(fmt).join(', ')}, ___`,`Complete the pattern: ${seq.map(fmt).join(', ')}, ___`),
+      ans:fmt(ans), opts:mkOpts(fmt(ans),()=>fmt(ans+pick([-2,-1,1,2])*d))};
+  }
+  if(t===4){
+    const base=ri(2000,8000); const arr=shuffle([base,base+ri(50,400),base-ri(50,400),base+ri(500,900)]);
+    const ans=Math.max(...arr);
+    return {text:tr('Yang manakah nombor PALING BESAR?','Which number is the LARGEST?'), ans:fmt(ans), opts:shuffle(arr.map(fmt))};
+  }
+  const n=ri(1001,9999);
+  return {text:tr(`Pilih nombor bagi: "${numWords(n)}"`,`Choose the number for: "${numWords(n)}"`),
+    ans:fmt(n), opts:mkOpts(fmt(n),()=>fmt(n+pick([-1000,-100,-10,10,100,1000,ri(-30,30)])))};
+ },
+ t2(){
+  const t=ri(1,5);
+  if(t===1){ const a=ri(1000,4000),b=ri(500,3000),c=ri(100,2000); const ans=a+b+c;
+    if(ans>10000) return GEN.t2();
+    return {text:`${fmt(a)} + ${fmt(b)} + ${fmt(c)} = ?`, ans:fmt(ans), opts:mkOpts(fmt(ans),()=>fmt(ans+pick([-100,-10,10,100,ri(-50,50)])))};}
+  if(t===2){ const a=ri(3000,9999),b=ri(500,a-100); const ans=a-b;
+    return {text:`${fmt(a)} − ${fmt(b)} = ?`, ans:fmt(ans), opts:mkOpts(fmt(ans),()=>fmt(Math.max(0,ans+pick([-100,-10,10,100,ri(-50,50)]))))};}
+  if(t===3){ const mode=ri(1,2);
+    if(mode===1){ const a=ri(2,9),b=ri(2,9); return {text:`${a} × ${b} = ?`, ans:String(a*b), opts:mkOpts(a*b,()=>a*b+pick([-a,-b,a,b,ri(-3,3)]))};}
+    const a=ri(2,99), m=pick([10,100,1000]); const ans=a*m; if(ans>10000) return GEN.t2();
+    return {text:`${a} × ${fmt(m)} = ?`, ans:fmt(ans), opts:mkOpts(fmt(ans),()=>fmt(a*pick([10,100,1000])*pick([1,1,10])))};}
+  if(t===4){ const b=ri(2,9),q=ri(2,9); const a=b*q;
+    return {text:`${a} ÷ ${b} = ?`, ans:String(q), opts:mkOpts(q,()=>q+pick([-2,-1,1,2]))};}
+  const a=ri(3,50), x=ri(2,40); const op=pick(['+','−']);
+  const c=op==='+'?a+x:(a-x>0?a-x:a+x);
+  return {text:`${a} ${op} ⬜ = ${c}  ${tr('Cari nilai ⬜','Find the value of ⬜')}`, ans:String(x), opts:mkOpts(x,()=>x+pick([-3,-2,-1,1,2,3]))};
+ },
+ t3(){
+  const t=ri(1,5);
+  if(t===1){ const d=pick([2,3,4,5]); const k=pick([2,3]);
+    return {text:tr(`Pecahan setara dengan 1/${d} ialah ...`,`Which fraction is equivalent to 1/${d}?`), ans:`${k}/${d*k}`,
+      opts:shuffle([`${k}/${d*k}`,`${k}/${d*k+k}`,`1/${d*k}`,`${k+1}/${d*k}`])};}
+  if(t===2){ const pairs=[['4/8','1/2'],['2/6','1/3'],['3/9','1/3'],['2/8','1/4'],['5/10','1/2'],['4/6','2/3'],['6/8','3/4']];
+    const p=pick(pairs);
+    return {text:tr(`Tukar ${p[0]} kepada bentuk TERMUDAH.`,`Write ${p[0]} in its SIMPLEST form.`), ans:p[1],
+      opts:mkOpts(p[1],()=>pick(['1/2','1/3','1/4','2/3','3/4','1/5','2/5']))};}
+  if(t===3){ const set=new Set(); let g=0;
+    while(set.size<4 && g<60){ g++; set.add(((ri(1,9)*10+ri(0,9))/100).toFixed(2)); }
+    if(set.size<4) return GEN.t3();
+    const arr=[...set]; const ans=arr.reduce((m,v)=>+v>+m?v:m);
+    return {text:tr('Yang manakah nilai perpuluhan PALING BESAR?','Which decimal is the LARGEST?'), ans, opts:shuffle(arr)};}
+  if(t===4){ const d=pick([5,6,8,10]); const a=ri(1,d-2), b=ri(1,d-1-a);
+    return {text:`${a}/${d} + ${b}/${d} = ?`, ans:`${a+b}/${d}`,
+      opts:shuffle([`${a+b}/${d}`,`${a+b}/${d*2}`,`${a+b+1}/${d}`,`${Math.max(1,a+b-1)}/${d}`])};}
+  const n=ri(1,99);
+  return {text:tr(`${n}/100 = berapa peratus?`,`${n}/100 = what percentage?`), ans:`${n}%`, opts:mkOpts(`${n}%`,()=>`${Math.max(1,Math.min(99,n+pick([-10,-5,5,10,ri(-8,8)])))}%`)};
+ },
+ t4(){
+  const t=ri(1,4);
+  if(t===1){ const x=Math.round(ri(200,9000)/100*10*10)/10, y=Math.round(ri(100,5000)/100*10*10)/10; const ans=x+y;
+    return {text:`${rm(x)} + ${rm(y)} = ?`, ans:rm(ans), opts:mkOpts(rm(ans),()=>rm(Math.max(0.1,ans+pick([-1,-0.5,0.5,1,ri(-3,3)]))))};}
+  if(t===2){ const harga=ri(3,60)+pick([0,.5]); const bayar=pick([10,20,50,100].filter(v=>v>harga));
+    const ans=bayar-harga;
+    return {text:tr(`Amir beli buku ${rm(harga)}. Dia bayar ${rm(bayar)}. Berapa baki wangnya?`,`Amir buys a book for ${rm(harga)}. He pays ${rm(bayar)}. How much change does he get?`),
+      ans:rm(ans), opts:mkOpts(rm(ans),()=>rm(Math.max(0.5,ans+pick([-2,-1,1,2,ri(-5,5)]))))};}
+  if(t===3){ const a=pick([2,3,4,5]), h=ri(2,20); const ans=a*h;
+    return {text:tr(`Sebiji epal ${rm(h)}. Berapa harga ${a} biji epal?`,`One apple costs ${rm(h)}. What is the price of ${a} apples?`), ans:rm(ans), opts:mkOpts(rm(ans),()=>rm(ans+pick([-h,h,ri(1,6)])))};}
+  const cur=[[['Thailand','Thailand'],'Baht'],[['Indonesia','Indonesia'],'Rupiah'],[['Singapura','Singapore'],tr('Dolar Singapura','Singapore Dollar')],[['Filipina','the Philippines'],'Peso'],[['Vietnam','Vietnam'],'Dong'],[['Malaysia','Malaysia'],'Ringgit']];
+  const c=pick(cur);
+  return {text:tr(`Apakah mata wang negara ${c[0][0]}?`,`What is the currency of ${c[0][1]}?`), ans:c[1],
+    opts:mkOpts(c[1],()=>pick(cur)[1])};
+ },
+ t5(){
+  const t=ri(1,4);
+  if(t===1){ const conv=pick([
+      {q:m=>tr(`${m} minit = ? saat`,`${m} minutes = ? seconds`), f:m=>m*60, r:[2,5]},
+      {q:m=>tr(`${m} jam = ? minit`,`${m} hours = ? minutes`), f:m=>m*60, r:[2,5]},
+      {q:m=>tr(`${m} minggu = ? hari`,`${m} weeks = ? days`), f:m=>m*7, r:[2,6]},
+      {q:m=>tr(`${m} tahun = ? bulan`,`${m} years = ? months`), f:m=>m*12, r:[2,5]}]);
+    const m=ri(conv.r[0],conv.r[1]); const ans=conv.f(m);
+    return {text:conv.q(m), ans:String(ans), opts:mkOpts(ans,()=>ans+pick([-12,-10,-7,7,10,12,ri(-20,20)])).map(String)};}
+  if(t===2){ const h=ri(1,12), m=pick([0,15,30,45]);
+    const label=`${h}:${String(m).padStart(2,'0')}`;
+    const wrong=()=>{const hh=ri(1,12),mm=pick([0,15,30,45]); return `${hh}:${String(mm).padStart(2,'0')}`;};
+    return {text:tr('Pukul berapakah yang ditunjukkan pada jam ini?','What time is shown on this clock?'), render:clockSVG(h,m),
+      ans:label, opts:mkOpts(label,wrong)};}
+  if(t===3){ const a=pick([20,30,40,45,50]), b=pick([25,30,35,40,45]); const tot=a+b;
+    const lab=v=> v>=60 ? tr(`1 jam ${v-60} minit`,`1 hour ${v-60} minutes`) : tr(`${v} minit`,`${v} minutes`);
+    const wrong=()=>lab(tot+pick([-15,-10,-5,5,10,15]));
+    return {text:tr(`${a} minit + ${b} minit = ?`,`${a} minutes + ${b} minutes = ?`), ans:lab(tot), opts:mkOpts(lab(tot),wrong)};}
+  const mo=[[['Januari','January'],31],[['Februari','February'],28],[['April','April'],30],[['Jun','June'],30],[['Julai','July'],31],[['September','September'],30],[['Disember','December'],31]];
+  const m=pick(mo);
+  return {text:tr(`Berapa harikah dalam bulan ${m[0][0]}? (bukan tahun lompat)`,`How many days are there in ${m[0][1]}? (not a leap year)`), ans:String(m[1]), opts:shuffle(['28','29','30','31'])};
+ },
+ t6(){
+  const t=ri(1,4);
+  if(t===1){ const conv=pick([
+      {n:ri(2,9), q:n=>`${n} m = ? cm`, f:n=>n*100},
+      {n:ri(2,9), q:n=>`${n} kg = ? g`, f:n=>n*1000},
+      {n:ri(2,9), q:n=>`${n} l = ? ml`, f:n=>n*1000}]);
+    const ans=conv.f(conv.n);
+    return {text:conv.q(conv.n), ans:fmt(ans),
+      opts:mkOpts(fmt(ans),()=>fmt(pick([conv.n*10, conv.n*100, conv.n*1000, (conv.n+1)*100, (conv.n+1)*1000, ans+pick([-100,100])])))};}
+  if(t===2){ const am=ri(1,4),ac=pick([20,30,40,50]),bm=ri(1,3),bc=pick([10,20,30,40]);
+    let cm=ac+bc, m=am+bm; if(cm>=100){cm-=100;m+=1;}
+    const ans=`${m} m ${cm} cm`;
+    const wrong=()=>{let w=ac+bc+pick([-20,-10,10,20]); let wm=am+bm; if(w>=100){w-=100;wm+=1;} if(w<0){w+=100;wm-=1;} return `${wm} m ${w} cm`;};
+    return {text:`${am} m ${ac} cm + ${bm} m ${bc} cm = ?`, ans, opts:mkOpts(ans,wrong)};}
+  if(t===3){ const g=pick([200,250,300,500]), k=ri(2,5); const tot=g*k;
+    const lab=w=> w>=1000 ? (w%1000===0?`${w/1000} kg`:`${Math.floor(w/1000)} kg ${w%1000} g`) : `${w} g`;
+    const wrong=()=>lab(g*pick([2,3,4,5,6]));
+    return {text:tr(`Sebungkus gula ${g} g. Berapa jisim ${k} bungkus?`,`A packet of sugar is ${g} g. What is the mass of ${k} packets?`), ans:lab(tot), opts:mkOpts(lab(tot),wrong)};}
+  const ml=pick([1500,2000,2500,3000,3500]); const l=Math.floor(ml/1000), rem=ml%1000;
+  const lab=w=>{const wl=Math.floor(w/1000),wr=w%1000; return wr===0?`${wl} l`:`${wl} l ${wr} ml`;};
+  const wrong=()=>lab(ml+pick([-1000,-500,500,1000]));
+  return {text:tr(`Tukar ${fmt(ml)} ml kepada liter dan mililiter.`,`Convert ${fmt(ml)} ml to litres and millilitres.`), ans:lab(ml), opts:mkOpts(lab(ml),wrong)};
+ },
+ t7(){
+  const t=ri(1,4);
+  const polys=[[['Pentagon','Pentagon'],5],[['Heksagon','Hexagon'],6],[['Heptagon','Heptagon'],7],[['Oktagon','Octagon'],8]];
+  const pn=p=>S.lang==='en'?p[0][1]:p[0][0];
+  if(t===1){ const p=pick(polys);
+    return {text:tr('Apakah nama poligon sekata ini?','What is the name of this regular polygon?'), render:polySVG(p[1]),
+      ans:pn(p), opts:shuffle(polys.map(pn))};}
+  if(t===2){ const p=pick(polys);
+    return {text:tr(`Berapakah bilangan sisi ${pn(p).toLowerCase()}?`,`How many sides does a ${pn(p).toLowerCase()} have?`), ans:String(p[1]), opts:shuffle(['5','6','7','8'])};}
+  if(t===3){ const prisms=[['Kubus','Cube'],['Kuboid','Cuboid'],['Prisma segi tiga','Triangular prism']];
+    const non=[['Sfera','Sphere'],['Kon','Cone'],['Piramid','Pyramid']];
+    const nm=x=>S.lang==='en'?x[1]:x[0];
+    const mode=ri(1,2);
+    if(mode===1){ const a=pick(prisms);
+      return {text:tr('Yang manakah PRISMA?','Which one IS a prism?'), ans:nm(a), opts:shuffle([nm(a),...shuffle([...non]).map(nm).slice(0,3)])};}
+    const a=pick(non);
+    return {text:tr('Yang manakah BUKAN prisma?','Which one is NOT a prism?'), ans:nm(a), opts:shuffle([nm(a),...shuffle([...prisms]).map(nm).slice(0,3)])};}
+  const sym=[[['segi empat sama','a square'],'4'],[['segi tiga sama sisi','an equilateral triangle'],'3'],[['segi empat tepat','a rectangle'],'2'],[['heksagon sekata','a regular hexagon'],'6']];
+  const s=pick(sym);
+  return {text:tr(`Berapakah paksi simetri bagi ${s[0][0]}?`,`How many lines of symmetry does ${s[0][1]} have?`), ans:s[1], opts:shuffle(['2','3','4','6'])};
+ },
+ t8(){
+  const t=ri(1,3);
+  const fruits=S.lang==='en'?['Apple','Orange','Banana','Grapes']:['Epal','Oren','Pisang','Anggur'];
+  const cols=['#FF6B6B','#FFB800','#FFE66D','#9B5DE5'];
+  if(t===1){ const vals=fruits.map(()=>ri(2,9));
+    const idx=ri(0,3);
+    return {text:tr(`Berdasarkan carta palang, berapa murid suka ${fruits[idx]}?`,`Based on the bar chart, how many pupils like ${fruits[idx]}?`),
+      render:barChartHTML(fruits,vals,cols), ans:String(vals[idx]),
+      opts:mkOpts(vals[idx],()=>Math.max(1,vals[idx]+pick([-3,-2,-1,1,2,3])))};}
+  if(t===2){ const vals=fruits.map(()=>ri(2,9));
+    const mx=Math.max(...vals); const winner=fruits[vals.indexOf(mx)];
+    return {text:tr('Buah manakah PALING digemari?','Which fruit is the MOST popular?'), render:barChartHTML(fruits,vals,cols),
+      ans:winner, opts:shuffle([...fruits])};}
+  const unit=pick([2,5]); const sports=S.lang==='en'?['Football','Badminton','Swimming']:['Bola','Badminton','Renang'];
+  const counts=sports.map(()=>ri(2,5));
+  const idx=ri(0,2); const ans=counts[idx]*unit;
+  return {text:tr(`Berapa murid suka ${sports[idx]}?`,`How many pupils like ${sports[idx]}?`),
+    render:pictoHTML(sports,counts,'⚽',unit), ans:String(ans),
+    opts:mkOpts(ans,()=>ans+pick([-unit,unit,-1,1,unit*2]))};
+ }
+};
+
+/* ================= QUIZ ================= */
+const QUIZ_N=10;
+let quiz={};
+function praise(){ return pick(S.lang==='en'?['Great job!','Correct!','Awesome!','Smart!']:['Bagus!','Betul tu!','Hebat!','Pandai!']); }
+function startQuiz(t){
+  quiz={i:0,score:0,t0:Date.now(),cur:null,lock:false,topic:t};
+  $('quiz-topic-tag').textContent=t.ico+' '+tName(t).split('(')[0].trim();
+  nextQuizQ(); show('scr-quiz');
+}
+function nextQuizQ(){
+  quiz.cur=GEN[quiz.topic.id]();
+  quiz.lock=false;
+  $('quiz-count').textContent=tr(`Soalan ${quiz.i+1}/${QUIZ_N}`,`Question ${quiz.i+1}/${QUIZ_N}`);
+  $('quiz-bar').style.width=(quiz.i/QUIZ_N*100)+'%';
+  $('quiz-render').innerHTML=quiz.cur.render||'';
+  $('quiz-text').textContent=quiz.cur.text;
+  $('quiz-fb').textContent=''; $('quiz-fb').className='fb';
+  const box=$('quiz-opts'); box.innerHTML='';
+  quiz.cur.opts.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+    b.addEventListener('click',()=>answerQuiz(o,b)); box.appendChild(b);
+  });
+}
+function answerQuiz(o,b){
+  if(quiz.lock) return;
+  const fb=$('quiz-fb');
+  if(String(o)===String(quiz.cur.ans)){
+    quiz.lock=true; b.classList.add('ok');
+    quiz.score++; const c=2+coinBonus(); S.coins+=c; save();
+    $('hud-coins').textContent=S.coins;
+    fb.textContent=praise()+` +${c} 🪙`; fb.classList.add('good');
+    sfx.ok();
+    setTimeout(()=>{ quiz.i++; quiz.i>=QUIZ_N ? finishQuiz() : nextQuizQ(); },750);
+  } else {
+    quiz.lock=true; b.classList.add('no');
+    fb.textContent=tr('Tak mengapa! Jawapan: ','No worries! Answer: ')+quiz.cur.ans; fb.classList.add('bad');
+    sfx.no();
+    setTimeout(()=>{ quiz.i++; quiz.i>=QUIZ_N ? finishQuiz() : nextQuizQ(); },1300);
+  }
+}
+function finishQuiz(){
+  const dur=Math.round((Date.now()-quiz.t0)/1000);
+  const t=quiz.topic; const sc=quiz.score;
+  if(!S.badges[t.id]||sc>S.badges[t.id]) S.badges[t.id]=sc;
+  save();
+  const pass=sc>=7;
+  $('res-emoji').textContent= pass?'🏆':(sc>=5?'💪':'🌱');
+  $('res-title').textContent= pass?tr('Tahniah, Lulus!','Congrats, You Passed!'):(sc>=5?tr('Hampir Sampai!','Almost There!'):tr('Jom Cuba Lagi!','Let\'s Try Again!'));
+  $('res-sub').textContent=`${tName(t)}: ${sc}/${QUIZ_N} ${tr('betul','correct')} (${Math.round(sc/QUIZ_N*100)}%)`;
+  $('res-coins').textContent=tr(`Koin dikumpul: +${sc*(2+coinBonus())} 🪙`,`Coins earned: +${sc*(2+coinBonus())} 🪙`);
+  $('res-sync').textContent='';
+  if(pass){ confetti(); sfx.win(); }
+  record('Kuiz', t.nm[0], sc, QUIZ_N, dur);
+  $('btn-res-retry').textContent=tr('🔁 Cuba Lagi','🔁 Try Again');
+  $('btn-res-retry').onclick=()=>startQuiz(quiz.topic);
+  show('scr-result');
+}
+$('btn-res-home').addEventListener('click',()=>{ renderHome(); show('scr-home'); });
+
+/* ================= GAME: BLOKQUEST ================= */
+const MAX_LVL=20;
+const MONSTERS=[
+  [['Slime Blok','Block Slime'],'🟩'],[['Zombi Kayu','Wood Zombie'],'🧟'],[['Labah Piksel','Pixel Spider'],'🕷️'],[['Hantu Blok','Block Ghost'],'👻'],
+  [['Robot Karat','Rusty Robot'],'🤖'],[['Naga Kecil','Little Dragon'],'🐉'],[['Raksasa Ais','Ice Monster'],'🧊'],[['Alien Ungu','Purple Alien'],'👾'],
+  [['Jerung Lava','Lava Shark'],'🦈'],[['Raja Slime','Slime King'],'👑']
+];
+function renderLevels(){
+  const g=$('level-grid'); g.innerHTML='';
+  for(let i=1;i<=MAX_LVL;i++){
+    const b=document.createElement('button'); b.className='lvl';
+    if(i<=S.levelsCleared){ b.classList.add('done'); b.innerHTML=`${i}<span class="lvl-sub">${tr('✔ Menang','✔ Won')}</span>`; }
+    else if(i===S.levelsCleared+1){ b.classList.add('now'); b.innerHTML=`${i}<span class="lvl-sub">${tr('MAIN!','PLAY!')}</span>`; }
+    else { b.classList.add('lock'); b.disabled=true; b.innerHTML=`🔒<span class="lvl-sub">${tr('Level','Level')} ${i}</span>`; }
+    b.addEventListener('click',()=>startBattle(i));
+    g.appendChild(b);
+  }
+}
+let bt={};
+function startBattle(lvl){
+  const m=MONSTERS[(lvl-1)%MONSTERS.length];
+  bt={lvl, hp:3+Math.ceil(lvl/2), hpMax:3+Math.ceil(lvl/2), hearts:3, t0:Date.now(), score:0, total:0, lock:false,
+      mName:(S.lang==='en'?m[0][1]:m[0][0])+' Lv'+lvl, mEmoji:m[1]};
+  $('battle-lvl-tag').textContent='Level '+lvl;
+  $('m-name').textContent=bt.mName; $('m-emoji').textContent=bt.mEmoji;
+  renderAvatars(); updBattleHud(); nextBattleQ();
+  show('scr-battle');
+}
+function updBattleHud(){
+  $('battle-hearts').textContent='❤️'.repeat(bt.hearts)+'🖤'.repeat(3-bt.hearts);
+  $('m-hp').style.width=(bt.hp/bt.hpMax*100)+'%';
+}
+function battleTopicId(){
+  const lvl=bt.lvl;
+  const pool= lvl<=5 ? ['t1','t2'] : lvl<=10 ? ['t1','t2','t3','t4'] : lvl<=15 ? ['t3','t4','t5','t6'] : ['t5','t6','t7','t8'];
+  return pick(pool);
+}
+function nextBattleQ(){
+  bt.cur=GEN[battleTopicId()]();
+  bt.lock=false;
+  $('battle-render').innerHTML=bt.cur.render||'';
+  $('battle-text').textContent=bt.cur.text;
+  $('battle-fb').textContent=''; $('battle-fb').className='fb';
+  const box=$('battle-opts'); box.innerHTML='';
+  bt.cur.opts.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.style.fontSize='17px'; b.textContent=o;
+    b.addEventListener('click',()=>answerBattle(o,b)); box.appendChild(b);
+  });
+}
+function answerBattle(o,b){
+  if(bt.lock) return;
+  bt.total++;
+  const fb=$('battle-fb');
+  if(String(o)===String(bt.cur.ans)){
+    bt.lock=true; bt.score++;
+    b.classList.add('ok');
+    const dmg=attackPower();
+    bt.hp=Math.max(0,bt.hp-dmg);
+    $('monster').classList.add('hit'); setTimeout(()=>$('monster').classList.remove('hit'),380);
+    sfx.hit(); updBattleHud();
+    fb.textContent=tr(`⚔️ Serangan power! −${dmg} HP`,`⚔️ Power attack! −${dmg} HP`); fb.classList.add('good');
+    setTimeout(()=>{ bt.hp<=0 ? winBattle() : nextBattleQ(); },800);
+  } else {
+    bt.lock=true; bt.hearts--;
+    b.classList.add('no'); sfx.no(); updBattleHud();
+    fb.textContent=tr('Aduh! Jawapan: ','Ouch! Answer: ')+bt.cur.ans; fb.classList.add('bad');
+    setTimeout(()=>{ bt.hearts<=0 ? loseBattle() : nextBattleQ(); },1300);
+  }
+}
+function winBattle(){
+  const dur=Math.round((Date.now()-bt.t0)/1000);
+  const reward=10+bt.lvl*2;
+  S.coins+=reward;
+  if(bt.lvl>S.levelsCleared) S.levelsCleared=bt.lvl;
+  save();
+  $('res-emoji').textContent='⚔️🏆';
+  $('res-title').textContent=tr(`Level ${bt.lvl} Tewas!`,`Level ${bt.lvl} Defeated!`);
+  $('res-sub').textContent=tr(`${bt.mName} dikalahkan! Betul ${bt.score}/${bt.total} soalan.`,`${bt.mName} is defeated! ${bt.score}/${bt.total} questions correct.`);
+  $('res-coins').textContent=tr(`Ganjaran: +${reward} 🪙`,`Reward: +${reward} 🪙`);
+  $('res-sync').textContent='';
+  confetti(); sfx.win();
+  record('Game', 'BlokQuest Level '+bt.lvl, bt.score, bt.total, dur, {level:bt.lvl, status:'Menang'});
+  $('btn-res-retry').textContent=tr('⚔️ Level Seterusnya','⚔️ Next Level');
+  $('btn-res-retry').onclick=()=>{ if(S.levelsCleared<MAX_LVL) startBattle(S.levelsCleared+1); else {renderLevels(); show('scr-game');} };
+  show('scr-result');
+}
+function loseBattle(){
+  const dur=Math.round((Date.now()-bt.t0)/1000);
+  $('res-emoji').textContent='💫';
+  $('res-title').textContent=tr('Alamak, Tumbang!','Oh no, Knocked Out!');
+  $('res-sub').textContent=tr(`${bt.mName} terlalu kuat kali ini. Betul ${bt.score}/${bt.total} soalan. Jom cuba lagi!`,`${bt.mName} was too strong this time. ${bt.score}/${bt.total} correct. Let's try again!`);
+  $('res-coins').textContent='';
+  $('res-sync').textContent='';
+  record('Game', 'BlokQuest Level '+bt.lvl, bt.score, bt.total, dur, {level:bt.lvl, status:'Kalah'});
+  $('btn-res-retry').textContent=tr('🔁 Cuba Lagi','🔁 Try Again');
+  $('btn-res-retry').onclick=()=>startBattle(bt.lvl);
+  show('scr-result');
+}
+
+/* ================= SHOP ================= */
+function renderShop(){
+  renderAvatars();
+  $('hud-coins').textContent=S.coins;
+  const g=$('shop-grid'); g.innerHTML='';
+  ITEMS.forEach(it=>{
+    const owned=S.owned.includes(it.id);
+    const on=S.equipped[it.slot]===it.id;
+    const d=document.createElement('div'); d.className='blok shop-item';
+    d.innerHTML=`<div class="shop-emoji">${it.emoji}</div>
+      <div class="shop-name">${itemName(it)}</div>
+      <div class="shop-eff">${itemEff(it)||tr('Gaya sahaja 😎','Style only 😎')}</div>`;
+    const b=document.createElement('button');
+    if(!owned){ b.className='btn btn-gold btn-sm'; b.textContent=`🪙 ${it.cost}`;
+      b.addEventListener('click',()=>{
+        if(S.coins<it.cost){ toast(tr('Koin tak cukup! Jawab soalan untuk kumpul 🪙','Not enough coins! Answer questions to earn 🪙')); sfx.no(); return; }
+        S.coins-=it.cost; S.owned.push(it.id); S.equipped[it.slot]=it.id; save();
+        sfx.coin(); toast(tr('Dibeli & dipakai! 🎉','Purchased & equipped! 🎉')); renderShop();
+      });
+    } else if(on){ b.className='btn btn-green btn-sm'; b.textContent=tr('✔ Dipakai','✔ Equipped');
+      b.addEventListener('click',()=>{ S.equipped[it.slot]=null; save(); renderShop(); });
+    } else { b.className='btn btn-blu btn-sm'; b.textContent=tr('Pakai','Equip');
+      b.addEventListener('click',()=>{ S.equipped[it.slot]=it.id; save(); sfx.coin(); renderShop(); });
+    }
+    d.appendChild(b); g.appendChild(d);
+  });
+}
+
+/* ================= SETTINGS ================= */
+$('btn-save-settings').addEventListener('click',()=>{
+  S.name=($('set-name').value.trim()||'Adik');
+  S.sheetUrl=$('set-sheet').value.trim();
+  save(); toast(tr('Tetapan disimpan ✔','Settings saved ✔')); renderHome();
+});
+$('btn-test-sheet').addEventListener('click',()=>{
+  if(!$('set-sheet').value.trim()){ toast(tr('Isi URL Apps Script dulu','Fill in the Apps Script URL first')); return; }
+  S.sheetUrl=$('set-sheet').value.trim(); save();
+  postToSheet({tarikh:new Date().toLocaleString('ms-MY'),nama:S.name,mod:'Ujian Sambungan',tajuk:'-',markah:'-',jumlah:'-',peratus:'-',masa_saat:0},
+    (ok)=>toast(ok?tr('Data ujian dihantar! Semak Sheet anda 📊','Test data sent! Check your Sheet 📊'):tr('Gagal hantar — semak URL','Failed — check the URL')));
+});
+
+/* ================= SIFIR DOJO (BILINGUAL) ================= */
+const SIFIR_TIPS_MS={
+ 2:'Sifir 2 ialah GANDA! 2 × 7 sama macam 7 + 7. Paling mudah, kita mula sini.',
+ 3:'Tambah 3 berulang: 3, 6, 9, 12... Cuba sebut macam nyanyi lagu, lagi cepat lekat!',
+ 4:'Sifir 4 = ganda DUA KALI. Contoh 4 × 6: ganda 6 jadi 12, ganda lagi jadi 24!',
+ 5:'Rahsia sifir 5: jawapan MESTI berakhir dengan 0 atau 5. Senang nak semak sendiri!',
+ 6:'Guna sifir 5 yang kamu dah tahu: 6 × n = (5 × n) + n. Contoh 6 × 7 = 35 + 7 = 42.',
+ 7:'Ini sifir paling mencabar — tapi kamu boleh! Guna terbalik: 7 × 8 = 8 × 7. Dan ingat kawan baik kita: 7 × 7 = 49.',
+ 8:'Sifir 8 = ganda TIGA KALI. Contoh 8 × 3: 3 → 6 → 12 → 24. Macam magik!',
+ 9:'Trick hebat cikgu: jumlah digit jawapan sifir 9 SENTIASA 9! Contoh 9 × 4 = 36, dan 3 + 6 = 9. Cuba semak yang lain!',
+ 10:'Paling senang sekali — tambah sifar je di belakang! 10 × 8 = 80. Siap!',
+ 11:'Sehingga × 9, digitnya berganda: 11, 22, 33, 44... Jadi 11 × 5 = 55!',
+ 12:'Pecahkan jadi dua: 12 × n = (10 × n) + (2 × n). Contoh 12 × 6 = 60 + 12 = 72.'
+};
+const SIFIR_TIPS_EN={
+ 2:'The 2 times table is just DOUBLE! 2 × 7 is the same as 7 + 7. Easiest one — let\'s start here.',
+ 3:'Add 3 over and over: 3, 6, 9, 12... Try chanting it like a song — it sticks faster!',
+ 4:'× 4 = DOUBLE TWICE. Example 4 × 6: double 6 → 12, double again → 24!',
+ 5:'Secret of × 5: the answer MUST end with 0 or 5. Easy to double-check yourself!',
+ 6:'Use × 5 you already know: 6 × n = (5 × n) + n. Example 6 × 7 = 35 + 7 = 42.',
+ 7:'The trickiest one — but you\'ve got this! Flip it: 7 × 8 = 8 × 7. And remember: 7 × 7 = 49.',
+ 8:'× 8 = DOUBLE THREE TIMES. Example 8 × 3: 3 → 6 → 12 → 24. Like magic!',
+ 9:'Teacher\'s cool trick: the digits of any × 9 answer ALWAYS add to 9! Example 9 × 4 = 36, and 3+6 = 9. Try the others!',
+ 10:'Easiest of all — just add a zero! 10 × 8 = 80. Done!',
+ 11:'Up to × 9, the digit doubles: 11, 22, 33, 44... So 11 × 5 = 55!',
+ 12:'Split into two: 12 × n = (10 × n) + (2 × n). Example 12 × 6 = 60 + 12 = 72.'
+};
+function sifirTip(n){ return (S.lang==='en'?SIFIR_TIPS_EN:SIFIR_TIPS_MS)[n]; }
+function sifirPraise(){ return pick(S.lang==='en'?['Well done!','Perfect!','Nailed it!','Sharp!','Keep it up!']:['Syabas!','Cikgu bangga!','Tepat sekali!','Power!','Macam tu lah!']); }
+
+function sifirStars(n){ return (S.sifir[n]&&S.sifir[n].stars)||0; }
+function weakEntries(){ return Object.entries(S.weak).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]); }
+function weakLabel(k){ const [a,b]=k.split('x'); return a+' × '+b; }
+
+function renderSifirHub(){
+  $('hud-coins').textContent=S.coins;
+  const wl=weakEntries();
+  const mastered=[...Array(11).keys()].filter(i=>sifirStars(i+2)>=3).length;
+  $('cikgu-msg').innerHTML = wl.length
+    ? tr(`Cikgu perasan kamu selalu tersilap <b>${wl.slice(0,3).map(([k])=>weakLabel(k)).join(', ')}</b>. Jangan risau — jom kita latih fakta tu sampai lekat! 💪`,
+         `Teacher noticed you often slip on <b>${wl.slice(0,3).map(([k])=>weakLabel(k)).join(', ')}</b>. Don't worry — let's drill them until they stick! 💪`)
+    : (mastered===11
+      ? tr('Semua 11 sifir dah MASTER! Kamu memang juara sifir kelas ini! 🏆👏','All 11 times tables MASTERED! You\'re the class champion! 🏆👏')
+      : tr('Rahsia pandai sifir: latih SIKIT tapi SETIAP HARI, bukan banyak sekali sekala. Pilih satu sifir, kita mula! 😊',
+           'Secret to great multiplication: practise A LITTLE EVERY DAY, not a lot once in a while. Pick a table and start! 😊'));
+  const g=$('sifir-grid'); g.innerHTML='';
+  for(let n=2;n<=12;n++){
+    const b=document.createElement('button'); b.className='lvl';
+    const st=sifirStars(n);
+    if(st>=3) b.classList.add('done'); else if(st>0) b.classList.add('now');
+    b.innerHTML=`×${n}<span class="lvl-sub">${st?'⭐'.repeat(st):tr('mula','start')}</span>`;
+    b.addEventListener('click',()=>openSifir(n));
+    g.appendChild(b);
+  }
+  $('weak-count').textContent=wl.length;
+  $('btn-weak-drill').disabled=!wl.length;
+  $('btn-weak-drill').innerHTML=tr(`🎯 Latih Fakta Lemah (<span id="weak-count">${wl.length}</span>)`,`🎯 Drill Weak Facts (<span id="weak-count">${wl.length}</span>)`);
+}
+$('btn-weak-drill').addEventListener('click',()=>{ if(weakEntries().length) startSifirDrill(0,'weak'); });
+
+let activeSifir=2;
+function openSifir(n){
+  activeSifir=n;
+  $('sl-title').textContent=`${tr('Sifir','× Table')} ${n}  ${sifirStars(n)?'⭐'.repeat(sifirStars(n)):''}`;
+  $('sl-tip').textContent=sifirTip(n);
+  const tb=$('sl-table'); tb.innerHTML='';
+  for(let i=1;i<=12;i++){
+    const r=document.createElement('div'); r.className='trow';
+    r.innerHTML=`<span>${n} × ${i}</span><span class="t-ans">= ${n*i}</span>`;
+    tb.appendChild(r);
+  }
+  const st=sifirStars(n);
+  $('btn-sf-latih').textContent=tr('✏️ Latih — ikut turutan','✏️ Practice — in order');
+  $('btn-sf-cabaran').disabled = st<1;
+  $('btn-sf-master').disabled  = st<2;
+  $('btn-sf-cabaran').textContent = st<1
+    ? tr('🔒 Cabaran — lulus Latih dulu','🔒 Challenge — pass Practice first')
+    : tr('🎲 Cabaran — rawak + bahagi','🎲 Challenge — random + division');
+  $('btn-sf-master').textContent  = st<2
+    ? tr('🔒 Ujian Master — lulus Cabaran dulu','🔒 Master Test — pass Challenge first')
+    : tr('⏱️ Ujian Master — lawan masa!','⏱️ Master Test — beat the clock!');
+  $('btn-sf-back').textContent=tr('⬅️ Kembali ke Dojo','⬅️ Back to Dojo');
+  show('scr-sifir-learn');
+}
+$('btn-sf-back').addEventListener('click',()=>{ renderSifirHub(); show('scr-sifir'); });
+$('btn-sf-latih').addEventListener('click',()=>startSifirDrill(activeSifir,'latih'));
+$('btn-sf-cabaran').addEventListener('click',()=>startSifirDrill(activeSifir,'cabaran'));
+$('btn-sf-master').addEventListener('click',()=>startSifirDrill(activeSifir,'master'));
+
+const SD_CONF={
+  latih:  {coins:1, nm:n=>tr(`✏️ Latih Sifir ${n}`,`✏️ Practice × ${n}`)},
+  cabaran:{coins:2, pass:10, nm:n=>tr(`🎲 Cabaran Sifir ${n}`,`🎲 Challenge × ${n}`)},
+  master: {coins:3, pass:13, tMs:8000, nm:n=>tr(`⏱️ Master Sifir ${n}`,`⏱️ Master × ${n}`)},
+  weak:   {coins:2, nm:()=>tr('🎯 Latih Fakta Lemah','🎯 Weak Facts Drill')}
+};
+function randSifirItem(n){
+  const wl=weakEntries().filter(([k])=>k.startsWith(n+'x'));
+  if(wl.length && Math.random()<0.35){
+    const [k]=pick(wl); const b=+k.split('x')[1];
+    return {a:n, b, form:pick(['mul','mulR','div','miss'])};
+  }
+  return {a:n, b:ri(2,12), form:pick(['mul','mul','mulR','div','miss'])};
+}
+function buildSifirQ(it){
+  const p=it.a*it.b, key=it.a+'x'+it.b;
+  const near=()=>Math.max(1, p+pick([-it.a,it.a,-it.b,it.b,-it.a-it.b,it.a+it.b,-1,1]));
+  if(it.form==='mulR') return {text:`${it.b} × ${it.a} = ?`, ans:String(p), key, opts:mkOpts(p,near)};
+  if(it.form==='miss') return {text:`⬜ × ${it.a} = ${p}`, ans:String(it.b), key, opts:mkOpts(it.b,()=>Math.max(1,Math.min(12,it.b+pick([-3,-2,-1,1,2,3]))))};
+  if(it.form==='div')  return {text:`${p} ÷ ${it.a} = ?`, ans:String(it.b), key, opts:mkOpts(it.b,()=>Math.max(1,Math.min(12,it.b+pick([-3,-2,-1,1,2,3]))))};
+  return {text:`${it.a} × ${it.b} = ?`, ans:String(p), key, opts:mkOpts(p,near)};
+}
+function startSifirDrill(n,mode){
+  const cf=SD_CONF[mode];
+  sd={n,mode,done:0,firstTry:0,queue:[],t0:Date.now(),lock:false,timer:null};
+  if(mode==='latih') sd.queue=[...Array(12).keys()].map(i=>({a:n,b:i+1,form:'mul'}));
+  else if(mode==='weak') sd.queue=shuffle(weakEntries().slice(0,8).flatMap(([k])=>{
+    const [a,b]=k.split('x').map(Number);
+    return [{a,b,form:'mul'},{a,b,form:'div'}];
+  }));
+  else sd.queue=[...Array(mode==='master'?15:12).keys()].map(()=>randSifirItem(n));
+  sd.planned=sd.queue.length;
+  $('sd-mode').textContent=cf.nm(n);
+  $('sd-timer-wrap').style.display = mode==='master'?'block':'none';
+  nextSifirQ(); show('scr-sifir-drill');
+}
+function sfStartTimer(){
+  sfClearTimer(); sd.tleft=SD_CONF.master.tMs;
+  $('sd-timer').style.width='100%';
+  sd.timer=setInterval(()=>{
+    sd.tleft-=100;
+    $('sd-timer').style.width=Math.max(0,sd.tleft/SD_CONF.master.tMs*100)+'%';
+    if(sd.tleft<=0){ sfClearTimer(); sifirWrong(null, tr('⏰ Masa tamat! Jawapan: ','⏰ Time\'s up! Answer: ')+sd.q.ans); }
+  },100);
+}
+function nextSifirQ(){
+  if(!sd.queue.length){ finishSifir(); return; }
+  sd.item=sd.queue.shift();
+  sd.q=buildSifirQ(sd.item);
+  sd.lock=false;
+  $('sd-prog').textContent=`${sd.done+1}/${sd.done+1+sd.queue.length}`;
+  $('sd-bar').style.width=(sd.done/(sd.done+1+sd.queue.length)*100)+'%';
+  $('sd-text').textContent=sd.q.text;
+  $('sd-fb').textContent=''; $('sd-fb').className='fb';
+  const box=$('sd-opts'); box.innerHTML='';
+  sd.q.opts.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'; b.textContent=o;
+    b.addEventListener('click',()=>answerSifir(o,b)); box.appendChild(b);
+  });
+  if(sd.mode==='master') sfStartTimer();
+}
+function answerSifir(o,b){
+  if(sd.lock) return;
+  sfClearTimer();
+  if(String(o)===String(sd.q.ans)){
+    sd.lock=true; b.classList.add('ok');
+    if(!sd.item.retried) sd.firstTry++;
+    const c=SD_CONF[sd.mode].coins+coinBonus();
+    S.coins+=c;
+    if(S.weak[sd.q.key]>0) S.weak[sd.q.key]--;
+    save(); $('hud-coins').textContent=S.coins;
+    $('sd-fb').textContent=sifirPraise()+` +${c} 🪙`;
+    $('sd-fb').classList.add('good');
+    sfx.ok(); sd.done++;
+    setTimeout(nextSifirQ, 600);
+  } else {
+    sifirWrong(b, tr('Jawapan: ','Answer: ')+sd.q.ans+tr(' — cikgu akan tanya lagi nanti!',' — teacher will ask again later!'));
+  }
+}
+function sifirWrong(btnEl, msg){
+  if(sd.lock) return;
+  sd.lock=true;
+  if(btnEl) btnEl.classList.add('no');
+  S.weak[sd.q.key]=(S.weak[sd.q.key]||0)+1; save();
+  if(sd.mode==='latih'||sd.mode==='weak') sd.queue.push(Object.assign({},sd.item,{retried:true}));
+  $('sd-fb').textContent=msg; $('sd-fb').classList.add('bad');
+  sfx.no(); sd.done++;
+  setTimeout(nextSifirQ, 1400);
+}
+function finishSifir(){
+  sfClearTimer();
+  const dur=Math.round((Date.now()-sd.t0)/1000);
+  const cf=SD_CONF[sd.mode];
+  const total=sd.planned, sc=sd.firstTry;
+  let pass=true, starTo=0, bonusMsg='';
+  if(sd.mode==='latih'){ starTo=1; }
+  if(sd.mode==='cabaran'){ pass=sc>=cf.pass; starTo=2; }
+  if(sd.mode==='master'){ pass=sc>=cf.pass; starTo=3; }
+  if(pass && starTo && starTo>sifirStars(sd.n)){
+    S.sifir[sd.n]={stars:starTo};
+    if(starTo===3){ S.coins+=50; bonusMsg=tr(' Bonus MASTER +50 🪙!',' MASTER Bonus +50 🪙!'); }
+    save();
+  }
+  const wl=weakEntries().filter(([k])=>sd.mode==='weak'||k.startsWith(sd.n+'x'));
+  const cikgu = pass
+    ? (wl.length? tr(`Cikgu nampak ${weakLabel(wl[0][0])} masih goyang sikit — ulang esok ya!`,`Teacher sees ${weakLabel(wl[0][0])} still a bit wobbly — revise it tomorrow!`)
+              : tr('Semua fakta dah kukuh. Cikgu sangat bangga! 👏','All facts are solid. Teacher is proud! 👏'))
+    : tr(`Belum lulus kali ini — tapi tu normal! Fokus pada ${wl.slice(0,2).map(([k])=>weakLabel(k)).join(tr(' dan ',' and '))||'latihan'}, mesti boleh.`,
+         `Not passed this time — but that's normal! Focus on ${wl.slice(0,2).map(([k])=>weakLabel(k)).join(' and ')||'practice'}, you can do it.`);
+  $('res-emoji').textContent = sd.mode==='master'&&pass ? '🥋🏆' : (pass?'🎉':'💪');
+  $('res-title').textContent = sd.mode==='weak' ? tr('Fakta Lemah Dilatih!','Weak Facts Drilled!')
+    : (pass? (starTo===3?tr(`MASTER SIFIR ${sd.n}!`,`× ${sd.n} MASTERED!`):tr('Lulus!','Passed!')) : tr('Cuba Lagi Ya!','Try Again!'));
+  $('res-sub').textContent = tr(`Betul percubaan pertama: ${sc}/${total} (${Math.round(sc/total*100)}%). ${cikgu}`,`First-try correct: ${sc}/${total} (${Math.round(sc/total*100)}%). ${cikgu}`);
+  $('res-coins').textContent = tr(`Koin: +${sd.done>0?sc*cf.coins:0} 🪙${bonusMsg}`,`Coins: +${sd.done>0?sc*cf.coins:0} 🪙${bonusMsg}`);
+  $('res-sync').textContent='';
+  if(pass){ confetti(); sfx.win(); }
+  record('Sifir', sd.mode==='weak'?'Fakta Lemah':`Sifir ${sd.n} — ${sd.mode}`, sc, total, dur);
+  $('btn-res-retry').textContent = pass&&sd.mode!=='weak'&&starTo<3 ? tr('⬆️ Naik Tahap','⬆️ Level Up') : tr('🔁 Latih Lagi','🔁 Drill Again');
+  $('btn-res-retry').onclick=()=>{
+    if(sd.mode==='weak'){ weakEntries().length? startSifirDrill(0,'weak') : (renderSifirHub(), show('scr-sifir')); return; }
+    const nextMode = pass ? (sd.mode==='latih'?'cabaran': sd.mode==='cabaran'?'master':'master') : sd.mode;
+    startSifirDrill(sd.n, nextMode);
+  };
+  show('scr-result');
+}
+
+/* ================= LANGUAGE APPLY ================= */
+const UI_TEXT={
+ ms:{
+  homeSub:'Jom belajar & main hari ini!',
+  labKoin:'Koin', labLencana:'Lencana', labLvl:'Level Game',
+  homeTopics:'📚 Pilih Tajuk',
+  gameTitle:'⚔️ BlokQuest: Menara Cabaran',
+  gameHint:'Kalahkan raksasa dengan jawab soalan matematik! Jawapan betul = serang ⚔️. Salah = hilang ❤️. Guna koin untuk beli gear lebih power di Kedai!',
+  shopTitle:'🛍️ Kedai Gear',
+  shopAvT:'Avatar Kamu', shopAvS:'Beli & pakai gear untuk jadi lebih power!',
+  setTitle:'⚙️ Tetapan (Untuk Ibu Bapa)',
+  labName:'Nama anak', labSheet:'URL Google Apps Script (untuk rekod keputusan)',
+  setHint:'📊 Setiap kali anak habis kuiz atau menang level game, keputusan (tajuk, markah, masa) akan dihantar automatik ke Google Sheet anda. Rujuk fail <b>panduan-google-sheets.md</b> untuk cara setup — hanya 5 minit!',
+  sifirTitle:'✖️ Dojo Sifir',
+  sifirHint:'Cara master sifir: ⭐ Latih ikut turutan → ⭐⭐ Cabaran rawak → ⭐⭐⭐ Ujian Master bermasa. Cikgu Blok akan ingat fakta yang kamu silap!',
+  btnGotoShop:'🛍️ Kedai Gear',
+  btnSave:'💾 Simpan', btnTest:'🧪 Hantar Data Ujian ke Sheet',
+  btnStartQuiz:'📝 Sedia? Jom Uji Minda!', btnBack:'⬅️ Kembali',
+  btnResHome:'🏠 Halaman Utama',
+  navHome:'Utama', navSifir:'Sifir', navGame:'BlokQuest', navShop:'Kedai', navSet:'Tetapan',
+  greet:'Hai'
+ },
+ en:{
+  homeSub:'Let\'s learn & play today!',
+  labKoin:'Coins', labLencana:'Badges', labLvl:'Game Level',
+  homeTopics:'📚 Choose a Topic',
+  gameTitle:'⚔️ BlokQuest: Challenge Tower',
+  gameHint:'Defeat monsters by answering math questions! Correct = attack ⚔️. Wrong = lose ❤️. Use coins to buy more powerful gear at the Shop!',
+  shopTitle:'🛍️ Gear Shop',
+  shopAvT:'Your Avatar', shopAvS:'Buy & equip gear to become more powerful!',
+  setTitle:'⚙️ Settings (For Parents)',
+  labName:'Child\'s name', labSheet:'Google Apps Script URL (to record results)',
+  setHint:'📊 Every time your child finishes a quiz or wins a game level, the result (topic, score, time) is sent automatically to your Google Sheet. See <b>panduan-google-sheets.md</b> for setup — only 5 minutes!',
+  sifirTitle:'✖️ Times Tables Dojo',
+  sifirHint:'How to master tables: ⭐ Practice in order → ⭐⭐ Random Challenge → ⭐⭐⭐ Timed Master Test. Teacher Blok will remember every fact you missed!',
+  btnGotoShop:'🛍️ Gear Shop',
+  btnSave:'💾 Save', btnTest:'🧪 Send Test Data to Sheet',
+  btnStartQuiz:'📝 Ready? Test Your Brain!', btnBack:'⬅️ Back',
+  btnResHome:'🏠 Home',
+  navHome:'Home', navSifir:'Tables', navGame:'BlokQuest', navShop:'Shop', navSet:'Settings',
+  greet:'Hi'
+ }
+};
+function setTxt(id,t){const el=$(id); if(el) el.innerHTML=t;}
+function applyLang(){
+  const T=UI_TEXT[S.lang];
+  document.documentElement.setAttribute('lang', S.lang==='en'?'en':'ms');
+  $('btn-lang').textContent = S.lang==='en' ? '🌐 EN' : '🌐 BM';
+  setTxt('home-sub',T.homeSub);
+  setTxt('lab-koin',T.labKoin); setTxt('lab-lencana',T.labLencana); setTxt('lab-lvl',T.labLvl);
+  setTxt('home-topics-title',T.homeTopics);
+  setTxt('game-title',T.gameTitle); setTxt('game-hint',T.gameHint);
+  setTxt('shop-title',T.shopTitle);
+  setTxt('shop-av-title',T.shopAvT); setTxt('shop-av-sub',T.shopAvS);
+  setTxt('set-title',T.setTitle);
+  setTxt('lab-name',T.labName); setTxt('lab-sheet',T.labSheet);
+  setTxt('set-hint',T.setHint);
+  setTxt('sifir-title',T.sifirTitle); setTxt('sifir-hint',T.sifirHint);
+  setTxt('btn-goto-shop',T.btnGotoShop);
+  setTxt('btn-save-settings',T.btnSave); setTxt('btn-test-sheet',T.btnTest);
+  setTxt('btn-start-quiz',T.btnStartQuiz); setTxt('btn-lesson-back',T.btnBack);
+  setTxt('btn-res-home',T.btnResHome);
+  $('set-name').placeholder = S.lang==='en'?'e.g. Aisyah':'cth: Aisyah';
+  $('set-sheet').placeholder = 'https://script.google.com/macros/s/.../exec';
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    const map={'scr-home':T.navHome,'scr-sifir':T.navSifir,'scr-game':T.navGame,'scr-shop':T.navShop,'scr-settings':T.navSet};
+    const label=map[b.dataset.nav]; if(label){
+      const ico=b.querySelector('.nav-ico').outerHTML;
+      b.innerHTML=ico+label;
+    }
+  });
+  // greeting in home hero
+  const hi=$('home-name'); if(hi&&hi.parentNode){
+    const parent=hi.parentNode;
+    parent.innerHTML = `${T.greet}, <span id="home-name">${S.name}</span>! 👋`;
+  }
+  // re-render whichever screen is showing
+  if($('scr-home').classList.contains('active')) renderHome();
+  if($('scr-lesson').classList.contains('active') && activeTopic) openLesson(activeTopic);
+  if($('scr-game').classList.contains('active')) renderLevels();
+  if($('scr-shop').classList.contains('active')) renderShop();
+  if($('scr-sifir').classList.contains('active')) renderSifirHub();
+}
+$('btn-lang').addEventListener('click',()=>{
+  S.lang = S.lang==='en' ? 'ms' : 'en';
+  save(); applyLang();
+  toast(S.lang==='en'?'Language: English 🇬🇧':'Bahasa: Melayu 🇲🇾');
+});
+
+/* ================= INIT ================= */
+applyLang();
+renderHome();
+})();
+
+</script>
+</body>
+</html>

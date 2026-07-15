@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panduan Setup: Google Sheets — MathBlok</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#7EC9F5; --sky-deep:#4BA3E3; --ink:#1F2430; --shadow:#16305A;
+    --gold:#FFB800; --green:#3ECF6E; --red:#FF4D4D;
+    --font-d:'Baloo 2', system-ui, sans-serif;
+    --font-b:'Nunito', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:var(--font-b); color:var(--ink); line-height:1.65;
+    background:linear-gradient(180deg,#BEE3FF 0%,#F2F8FF 260px);
+    padding:0 0 60px;
+  }
+  a{color:var(--sky-deep); font-weight:800;}
+  .wrap{max-width:720px; margin:0 auto; padding:0 20px;}
+  .top{display:flex; align-items:center; justify-content:space-between; padding:22px 0;}
+  .brand{display:flex; align-items:center; gap:9px; font-family:var(--font-d); font-weight:800; font-size:19px;}
+  .brand .sq{width:32px; height:32px; border-radius:9px; background:var(--sky-deep); border:3px solid var(--ink); box-shadow:0 3px 0 var(--shadow); display:flex; align-items:center; justify-content:center; font-size:16px;}
+  .back{font-family:var(--font-d); font-weight:700; font-size:13.5px; background:#fff; border:2.5px solid var(--ink); border-radius:999px; padding:7px 14px; box-shadow:0 3px 0 var(--shadow);}
+  h1{font-family:var(--font-d); font-weight:800; font-size:30px; margin:10px 0 6px;}
+  .sub{font-weight:700; color:#3A4160; margin-bottom:26px;}
+  .blok{background:#fff; border:3px solid var(--ink); border-radius:16px; box-shadow:0 6px 0 var(--shadow); padding:20px 22px; margin-bottom:20px;}
+  .blok h2{font-family:var(--font-d); font-weight:800; font-size:19px; display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .step-badge{width:26px; height:26px; border-radius:50%; background:var(--gold); border:2.5px solid var(--ink); display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex:none;}
+  p{margin-bottom:10px; font-weight:600;}
+  ol,ul{padding-left:22px; margin-bottom:10px;}
+  li{margin-bottom:6px; font-weight:600;}
+  code{background:#F0F3FA; border:1.5px solid #DCE3F0; border-radius:5px; padding:1px 6px; font-size:.92em; font-family:'Courier New',monospace; color:#B8390F;}
+  pre{background:#151B33; color:#D6E4FF; border:3px solid var(--ink); border-radius:12px; padding:16px; overflow-x:auto; font-size:12.5px; line-height:1.6; margin:10px 0 14px; font-family:'Courier New',monospace;}
+  pre code{background:none; border:none; color:inherit; padding:0;}
+  table{width:100%; border-collapse:collapse; margin:10px 0 14px; font-size:13px;}
+  th{background:var(--sky-deep); color:#fff; padding:8px 10px; text-align:left; font-weight:800;}
+  td{padding:7px 10px; border-top:1.5px dashed #E3E8F0; font-weight:600;}
+  .note{background:#FFF8E1; border:2px dashed var(--gold); border-radius:12px; padding:12px 14px; font-size:13.5px; font-weight:700;}
+  .warn{background:#FFE9E9; border:2px dashed var(--red); border-radius:12px; padding:12px 14px; font-size:13.5px; font-weight:700; margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="../"><span class="sq">✖️</span>MathBlok</a>
+    <a class="back" href="../">⬅️ Kembali</a>
+  </div>
+
+  <h1>📊 Rekod Keputusan ke Google Sheets</h1>
+  <p class="sub">Backend percuma guna Google Apps Script — takda server, takda kos. Setup ± 5 minit.</p>
+
+  <div class="blok">
+    <h2><span class="step-badge">1</span> Buat Google Sheet baru</h2>
+    <ol>
+      <li>Pergi ke <a href="https://sheets.google.com" target="_blank" rel="noopener">sheets.google.com</a> → buat spreadsheet baru</li>
+      <li>Namakan cth: <code>Rekod Matematik Anak</code></li>
+      <li>Di baris pertama, taip header ikut turutan ini:</li>
+    </ol>
+    <table>
+      <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th></tr>
+      <tr><td>Tarikh</td><td>Nama</td><td>Mod</td><td>Tajuk</td><td>Markah</td><td>Jumlah</td><td>Peratus</td><td>Masa (saat)</td><td>Status/Level</td></tr>
+    </table>
+  </div>
+
+  <div class="blok">
+    <h2><span class="step-badge">2</span> Buka Apps Script</h2>
+    <ol>
+      <li>Dalam Sheet tadi, klik menu <b>Extensions → Apps Script</b></li>
+      <li>Padam semua kod contoh yang ada</li>
+      <li>Copy &amp; paste kod di bawah ini:</li>
+    </ol>
+<pre><code>function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var d = JSON.parse(e.postData.contents);
+
+    sheet.appendRow([
+      d.tarikh    || new Date().toLocaleString(),
+      d.nama      || '',
+      d.mod       || '',
+      d.tajuk     || '',
+      d.markah,
+      d.jumlah,
+      d.peratus,
+      d.masa_saat || '',
+      d.status    || d.level || ''
+    ]);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ok: true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ok: false, error: String(err)}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}</code></pre>
+    <p>Tekan ikon 💾 <b>Save</b> (namakan projek cth: "MathBlok Backend")</p>
+  </div>
+
+  <div class="blok">
+    <h2><span class="step-badge">3</span> Deploy sebagai Web App</h2>
+    <ol>
+      <li>Klik butang <b>Deploy → New deployment</b></li>
+      <li>Klik ikon gear ⚙️ sebelah "Select type" → pilih <b>Web app</b></li>
+      <li>Setting <b>PENTING</b>:
+        <ul>
+          <li><b>Execute as:</b> Me (email anda)</li>
+          <li><b>Who has access:</b> <b>Anyone</b> — wajib, kalau tak app tak boleh hantar data</li>
+        </ul>
+      </li>
+      <li>Klik <b>Deploy</b></li>
+      <li>Google minta kebenaran → <b>Authorize access</b> → pilih akaun → <b>Advanced → Go to (nama projek) → Allow</b></li>
+      <li>Copy <b>Web app URL</b> yang diberikan, bentuknya:<br><code>https://script.google.com/macros/s/AKfycb.../exec</code></li>
+    </ol>
+  </div>
+
+  <div class="blok">
+    <h2><span class="step-badge">4</span> Sambungkan dalam app</h2>
+    <ol>
+      <li>Buka <b>MathBlok</b> → tekan ikon ⚙️ (Tetapan)</li>
+      <li>Isi nama anak</li>
+      <li>Paste Web app URL tadi</li>
+      <li>Tekan <b>💾 Simpan</b></li>
+      <li>Tekan <b>🧪 Hantar Data Ujian ke Sheet</b> → semak Sheet — kalau ada baris baru, siap! ✅</li>
+    </ol>
+  </div>
+
+  <div class="blok">
+    <h2>💡 Tips analysis untuk ibu bapa</h2>
+    <ul>
+      <li><b>Pivot table</b> (Insert → Pivot table): purata peratus ikut Tajuk → nampak terus tajuk mana anak lemah</li>
+      <li><b>Chart</b> markah vs tarikh untuk satu tajuk → nampak trend improvement</li>
+      <li><b>Filter</b> <code>Mod = Kuiz</code> untuk fokus keputusan ujian sahaja</li>
+      <li>Column <b>Masa (saat)</b> berguna: markah tinggi + masa makin pendek = dah master tajuk itu</li>
+    </ul>
+  </div>
+
+  <div class="blok">
+    <h2>❓ Troubleshooting</h2>
+    <table>
+      <tr><th>Masalah</th><th>Penyelesaian</th></tr>
+      <tr><td>Data tak masuk</td><td>Pastikan "Who has access" = <b>Anyone</b>, deploy semula</td></tr>
+      <tr><td>Data tak masuk</td><td>Pastikan URL berakhir dengan <code>/exec</code></td></tr>
+      <tr><td>Ubah kod tapi tak jalan</td><td><b>Deploy → Manage deployments → Edit → New version → Deploy</b></td></tr>
+    </table>
+    <div class="warn">🔒 <b>Nota keselamatan:</b> URL ini membenarkan sesiapa yang ada URL untuk tambah baris (tulis sahaja, tak boleh baca/padam). Jangan kongsi URL secara terbuka.</div>
+  </div>
+</div>
+</body>
+</html>
